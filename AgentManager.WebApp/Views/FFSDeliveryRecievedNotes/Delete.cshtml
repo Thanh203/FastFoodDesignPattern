@@ -1,0 +1,67 @@
+﻿@model FastFoodSystem.WebApp.Models.Data.FFSDeliveryRecievedNote
+@{
+    ViewData["Title"] = "Delete";
+    Layout = "~/Views/Shared/_mLayout.cshtml";
+}
+
+<h4>Xóa phiếu @Model.State hàng #@Model.FFSDeliveryRecievedNoteId</h4>
+<hr />
+<div class="container text-center">
+    <div class="card">
+        <div class="card-body p-0 my-3">
+            <table class="table table-striped projects my-3">
+                <thead>
+                    <tr>
+                        <th>
+                            @Html.DisplayNameFor(model => model.FFSShipments.FirstOrDefault().FFSIngredient.Name)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.FFSShipments.FirstOrDefault().Quantity)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.FFSShipments.FirstOrDefault().StartDate)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.FFSShipments.FirstOrDefault().EndDate)
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.FFSShipments)
+                    {
+                        <tr>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.FFSIngredient.Name)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Quantity)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.StartDate)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.EndDate)
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <div class="row mx-2">
+                <div class="col-12 d-flex justify-content-between">
+                    <a asp-action="Index" class="btn btn-secondary">Quay lại</a>
+                    <form asp-action="Delete">
+                        <input type="hidden" asp-for="FFSDeliveryRecievedNoteId" />
+                        <input type="submit" value="Xóa" class="btn btn-danger float-right" />
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+

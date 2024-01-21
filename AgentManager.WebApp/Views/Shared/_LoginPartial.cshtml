@@ -1,0 +1,21 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using FastFoodSystem.WebApp.Models.Data
+
+@inject SignInManager<Staff> SignInManager
+@inject UserManager<Staff> UserManager
+
+@if (SignInManager.IsSignedIn(User))
+{
+     <div class="info d-flex row">
+        <a id="manage" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage" class="col">@UserManager.GetUserName(User)</a>
+        <form id="logoutForm" class="form-inline col-md-auto" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+            <button id="logout" type="submit" class="px-1" style="line-height: 15px;">
+                X
+            </button>
+        </form>
+    </div>
+}
+else
+{
+    <a asp-area="Identity" asp-page="/Account/Login" class="d-block">Đăng nhập</a>
+}

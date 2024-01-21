@@ -1,0 +1,115 @@
+﻿@{
+    Layout = "~/Views/Shared/_mLayout.cshtml";
+}
+@using FastFoodSystem.WebApp.Models.Data;
+@model IEnumerable<FFSVoucher>
+
+<section class="content">
+    <div class="card">
+        <div class="card-body p-0">
+            <table id="productTable" class="table table-striped projects">
+                <thead>
+                    <tr>
+                        <th>
+                            STT
+                        </th>
+                        <th>
+                            Mã khuyễn mãi
+                        </th>
+                        <th>
+                            Giảm
+                        </th>
+                        <th>
+                            Đơn vị
+                        </th>
+                        <th>
+                            Giới hạn mức
+                        </th>
+                      
+                        <th>
+                            Ngày bắt đầu
+                        </th>
+                        <th>
+                            Ngày kết thúc
+                        </th>
+                        @Html.Partial("Buttons/_AddButton")
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td></td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.FFSVoucherId)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Price)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.State)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Num)
+                            </td>
+                            
+                            <td>
+                                @Html.DisplayFor(modelItem => item.StartDate)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.EndDate)
+                            </td>
+                            <td class="project-actions text-right">
+                                @Html.Partial("Buttons/_DetailsButton", @item.FFSVoucherId)
+                                @Html.Partial("Buttons/_EditButton", item.FFSVoucherId)
+                                @Html.Partial("Buttons/_DeleteButton", item.FFSVoucherId)
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+
+@section scripts{
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('#productTable').DataTable(
+                {
+                    "order": [[0, 'asc']],
+                    "paging": true,
+                    "searching": true,
+                    "lengthMenu": [5, 10, 25, 50],
+                    "pageLength": 5,
+                    "language": {
+                        "paginate": {
+                            "previous": "<i class='fas fa-chevron-left'></i>",
+                            "next": "<i class='fas fa-chevron-right'></i>"
+                        }
+                    },
+                    "columnDefs": [
+                        {
+                        "targets": 0,
+                        "render": function (data, type, row, meta) {
+                            return meta.row + 1; 
+                        }
+                    },
+                                {
+                            "orderable": false,
+                            "targets": 7,
+                            "searchable": false
+                        }
+                    ],
+                    "initComplete": function () {
+                    $('.dataTables_wrapper').css('padding', '20px');
+                }
+                });
+        });
+    </script>
+}

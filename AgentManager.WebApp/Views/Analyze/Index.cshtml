@@ -1,0 +1,133 @@
+﻿@model List<FastFoodSystem.WebApp.Models.Data.RevenueData> 
+
+@using FastFoodSystem.WebApp.Models.Data;
+@using Newtonsoft.Json
+
+<script src="~/lib/Chart.js/Chart.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/json2/20150503/json2.min.js"></script>
+<script src="~/js/Analyzing.js"></script>
+<script src="~/js/RouteChart.js"></script>
+<script src="~/js/LineChart.js"></script>
+
+@{
+    Layout = "~/Views/Shared/_mLayout.cshtml";
+}
+
+<h2>Phân Tích Doanh Thu</h2>
+
+<form asp-controller="Analyze" asp-action="FilteredRevenue" method="get">
+    <label for="startDate">Từ ngày:</label>
+    <input type="date" id="startDate" name="startDate" required>
+
+    <label for="endDate">Đến ngày:</label>
+    <input type="date" id="endDate" name="endDate" required>
+
+    <button type="submit">Lọc</button>
+</form>
+
+<canvas id="revenueChart" width="400" height="200"></canvas>
+
+
+<h3>Thống kê số lượng sản phẩm đã bán theo loại sản phẩm:</h3>
+
+<section class="content">
+    <div class="card">
+        <div class="card-body p-0">
+            <table id="productTable" class="table table-striped projects">
+                <thead>
+                    <tr>
+                        <th>STT</th>
+                        <th>Tên loại sản phẩm</th>
+                        <th>Số lượng đã bán</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var stat in (List<ProductStatistics>)ViewData["ProductStatistics"])
+                    {
+                        <tr>
+                            <td></td>
+                            <td>@stat.CategoryName</td>
+                            <td>@stat.QuantitySold</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+
+<script>
+    var ctx = document.getElementById('revenueChart').getContext('2d');
+    var dates = @Html.Raw(Json.Serialize(Model.Select(x => x.Date)));
+    var revenue = @Html.Raw(Json.Serialize(Model.Select(x => x.Revenue)));
+
+    var chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: dates,
+            datasets: [{
+                label: 'Doanh Thu',
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                data: revenue,
+                fill: false
+            }]
+        },
+        options: {
+            scales: {
+                x: {
+                    type: 'category',
+                    title: {
+                        display: true,
+                        text: 'Ngày'
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Doanh Thu'
+                    }
+                }
+            }
+        }
+    });
+</script>
+
+@section scripts{
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('#productTable').DataTable(
+                {
+                    "order": [[0, 'asc']],
+                    "paging": true,
+                    "searching": true,
+                    "lengthMenu": [5, 10, 25, 50],
+                    "pageLength": 5,
+                    "language": {
+                        "paginate": {
+                            "previous": "<i class='fas fa-chevron-left'></i>",
+                            "next": "<i class='fas fa-chevron-right'></i>"
+                        }
+                    },
+                    "columnDefs": [
+                        {
+                            "targets": 0,
+                            "render": function (data, type, row, meta) {
+                                return meta.row + 1;
+                            }
+                        },
+
+                    ],
+                    "initComplete": function () {
+                        $('.dataTables_wrapper').css('padding', '20px');
+                    }
+                });
+        });
+    </script>
+}

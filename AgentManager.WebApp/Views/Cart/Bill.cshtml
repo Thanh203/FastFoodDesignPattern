@@ -1,0 +1,66 @@
+﻿@model List<FastFoodSystem.WebApp.Models.ViewModel.CartItem>
+
+@{
+    Layout = "~/Views/Shared/_mLayout.cshtml";
+}
+
+
+<section class="container mt-4" style="background-color: #f0f0f0; height:auto; border-radius:10px; padding:20px;">
+    <div class="" title="header-info">
+        <div class="row p-2">
+            <div class="col-md-4">Mã đơn hàng: <span class="text-primary">@ViewBag.Bill.FFSOrderId</span></div>
+            <div class="col-md-8">Thời gian: @ViewBag.Bill.Date</div>
+            <div class="col-12 mt-3">Mã giảm giá: <span class="h5">@ViewBag.Bill.FFSVoucherId</span></div>
+            <div class="col-12 mt-3">Tổng tiền: <span class="h5">@string.Format("{0:#,##0}", ViewBag.Bill.Cash) VND</span></div>
+        </div>
+    </div>
+
+    <form method="post">
+        <div class="card">
+            <div class="card-body p-0">
+                <table class="table table-striped projects">
+                    <thead>
+                        <tr>
+                            <th>
+                                Tên sản phẩm
+                            </th>
+                            <th>
+                                Giá
+                            </th>
+                            <th>
+                                Số lượng
+                            </th>
+                            <th>
+                                Tổng
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    @item.tenSanPham
+                                </td>
+                                <td>
+                                    @string.Format("{0:#,##0}", item.gia) VND
+                                </td>
+                                <td>
+                                    @item.Quantity
+                                </td>
+                                <td>
+                                    @string.Format("{0:#,##0}", item.total) VND
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <a asp-action="ExportToPdf" asp-route-id="@ViewBag.Bill.FFSOrderId" class="btn btn-sm btn-secondary float-right">Xuất PDF</a>
+            </div>
+        </div>
+    </form>
+</section>
