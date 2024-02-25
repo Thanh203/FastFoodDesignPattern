@@ -11,6 +11,7 @@ using iTextSharp.text.pdf;
 using iTextSharp.text;
 using System.Text;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 
 namespace FastFoodSystem.WebApp.Controllers
 {
@@ -19,12 +20,19 @@ namespace FastFoodSystem.WebApp.Controllers
     {
         private readonly IHttpContextAccessor _contx;
         private readonly FastFoodSystemDbContext _context;
+        private readonly UserManager<Staff> _userManager;
         DBHelper dBHelper;
-        public CartController(FastFoodSystemDbContext db, FastFoodSystemDbContext context)
+        public CartController(FastFoodSystemDbContext db, FastFoodSystemDbContext context, UserManager<Staff> userManager)
         {
             _contx = new HttpContextAccessor();
             dBHelper = new DBHelper(db);
             _context = context;
+            _userManager = userManager;
+        }
+        public async Task<string> GetCurrentUserIdAsync()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            return user?.Id;
         }
         public void RetrieveCartitem(out List<CartItem> list, out decimal bill)
         {
@@ -75,7 +83,7 @@ namespace FastFoodSystem.WebApp.Controllers
 
 
         [HttpPost]
-        public IActionResult Index(bool state, string promoCode, decimal discountAmount)
+        public async Task<IActionResult> Index(string promoCode, decimal discountAmount)
         {
             RetrieveCartitem(out List<CartItem> list, out decimal bill);
             int newOrderId = 0;
@@ -132,7 +140,7 @@ namespace FastFoodSystem.WebApp.Controllers
                 //Attribute
                 Date = DateTime.Now,
                 Cash = Convert.ToDouble(bill),
-                StaffId = "0c8e7077-505c-4e23-9825-3e6da939572e",
+                StaffId = await GetCurrentUserIdAsync(),
                 TableId = "Table456",
                 FFSVoucherId = voucher.FFSVoucherId,
                 FFSProductOrders = productOrders
@@ -195,7 +203,7 @@ namespace FastFoodSystem.WebApp.Controllers
                 TempData["ErrorMessage"] = errorMessage;
             }
 
-            return RedirectToAction("Index", new { discountAmount = discountAmount });
+            return RedirectToAction("Index", new { discountAmount });
         }
 
 

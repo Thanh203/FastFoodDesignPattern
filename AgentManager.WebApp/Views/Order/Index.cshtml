@@ -1,8 +1,5 @@
 ﻿@using FastFoodSystem.WebApp.Models.ViewModel;
 
-@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
 @{
     var model = new ProductCategoryViewModel();
     model.Categories = ViewBag.Categories;
@@ -11,6 +8,14 @@
 }
 
 <h1 class="text-center align-items-center justify-content-center">Đặt hàng</h1>
+<!-- Shopping Cart Button and Quantity Display -->
+<div class="mb-3 me-3 text-end" style="padding:10px;">
+    <a href="../Cart" class="btn btn-primary" style="float:right;background:gray;">
+        <img src="https://www.guloa.vn/uploads/source/chung/icon/icon-giohang.png" style="height:25px;width:25px;"/>
+        (<span id="cart-quantity">0</span>)
+    </a>
+</div>
+
 <div class="container mx-3 mt-5" style="background-color: #CCCCCC;border-radius:10px;">
     <div title="header-tab-categories" class="">
         <!-- Tabs navs -->
@@ -42,7 +47,7 @@
                  role="tabpanel"
                  aria-labelledby="ex3-tab-1">
                 <section style="background-color: #f0f0f0; height:auto; border-radius:10px; padding:20px;">
-                    <div class="container py-5">
+                    <div class="container">
                         <div class="row">
                             @if (ViewBag.SelectedCategoryId != "")
                             {
@@ -67,17 +72,17 @@
                                                 }
                                             </div>
                                             <div class="card-body">
-                                                <h5 class="card-title mb-3">@product.Name</h5>
+                                                <h5 class="card-title mb-3" style="width: 150px;">@product.Name</h5>
                                                 <div class="d-flex">
                                                     <div class="form-outline" style="width: 150px;">
-                                                        <input name="quantity" value="1" type="number" id="typeNumber" class="form-control" />
+                                                        <input name="quantity" value="1" type="number" id="typeNumber" class="form-control" style="margin-left: 30%; width:60px;"/>
                                                     </div>
                                                     <a class="btn btn-outline-success ms-3 add-to-cart" data-product-id="@product.FFSProductId">
                                                         Thêm
                                                     </a>
 
                                                 </div>
-                                                <div class="text-black-50 fw-bold mt-3 fs-5">
+                                                <div class="text-black-80 fw-bold mt-3 fs-5">
                                                     @string.Format("{0:#,##0}", product.Price) VND
                                                 </div>
                                             </div>
@@ -95,6 +100,7 @@
 </div>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
+
     $(document).ready(function () {
         $(".add-to-cart").click(function () {
             var productId = $(this).data("product-id");
@@ -114,18 +120,18 @@
                 data: JSON.stringify(data), // Chuyển dữ liệu thành JSON
                 contentType: "application/json", // Đặt loại dữ liệu trong request header
                 success: function (data) {
-                    // Xử lý kết quả trả về (nếu cần)
+                    // Update quantity display
+                    var currentQuantity = parseInt($("#cart-quantity").text());
+                    $("#cart-quantity").text(currentQuantity + parseInt(quantity));
                     alert("Sản phẩm đã được thêm vào giỏ hàng!");
                     console.log("After post: " + data);
                 },
                 error: function () {
-                    // Xử lý lỗi (nếu có)
+                    // Xử lý lỗi 
                     alert("Có lỗi xảy ra khi thêm sản phẩm vào giỏ hàng.");
                     console.log(err);
                 }
             });
         });
     });
-
-
 </script>

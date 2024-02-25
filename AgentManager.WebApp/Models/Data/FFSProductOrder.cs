@@ -20,6 +20,5 @@ namespace FastFoodSystem.WebApp.Models.Data
         [Required]
         [Display (Name = "Số lượng")]
         public int Quantity { get; set; }
-        public int QuantitySold { get; set; }
     }
 }
