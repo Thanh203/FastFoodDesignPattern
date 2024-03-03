@@ -5,11 +5,17 @@ namespace FastFoodSystem.WebApp.Models.ViewModel
 {
     public class CartItem
     {
+        public CartItem(string fFSProductId, int quantity)
+        {
+            FFSProductId = fFSProductId;
+            Quantity = quantity;
+        }
+        public CartItem() { }
         public string FFSProductId { get; set; } // ID sản phẩm
+        public int Quantity { get; set; } // Số lượng sản phẩm
         public string tenSanPham { get; set; } // Tên sản phẩm
         public string anh { get; set; } // Đường dẫn ảnh
         public decimal gia { get; set; } // Giá sản phẩm
-        public int Quantity { get; set; } // Số lượng sản phẩm
         public decimal total
         {
             get

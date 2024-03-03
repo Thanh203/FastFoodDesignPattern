@@ -25,14 +25,14 @@ namespace FastFoodSystem.WebApp.Controllers
         public CartController(FastFoodSystemDbContext db, FastFoodSystemDbContext context, UserManager<Staff> userManager)
         {
             _contx = new HttpContextAccessor();
-            dBHelper = new DBHelper(db);
+            dBHelper = DBHelper.GetInstance(db);
             _context = context;
             _userManager = userManager;
         }
         public async Task<string> GetCurrentUserIdAsync()
         {
             var user = await _userManager.GetUserAsync(User);
-            return user?.Id;
+            return user.Id;
         }
         public void RetrieveCartitem(out List<CartItem> list, out decimal bill)
         {

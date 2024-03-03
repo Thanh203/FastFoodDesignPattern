@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FastFoodSystem.WebApp.Controllers
 {
-    [Authorize(Roles = "Admin,Manager,Staff")]
+    //[Authorize(Roles = "Admin,Manager,Staff")]
     public class ProductController : Controller
     {
         private readonly FastFoodSystemDbContext _context;  
@@ -17,13 +17,13 @@ namespace FastFoodSystem.WebApp.Controllers
         public ProductController(FastFoodSystemDbContext db, FastFoodSystemDbContext context)
         {
             _context = context;
-            dBHelper = new DBHelper(db);
+            dBHelper = DBHelper.GetInstance(db);
         }
 
         public ActionResult Index(string searchText = "")
         {
             ViewBag.SearchText = searchText;
-            ViewData["listProduct"] = dBHelper.GetProducts();
+            ViewData["listProduct"] = dBHelper.GetProducts(_context);
 
             if (!String.IsNullOrEmpty(searchText))
             {
@@ -33,7 +33,7 @@ namespace FastFoodSystem.WebApp.Controllers
                 List<FFSProduct> productListSearchByName = _context.FFSProducts
                     .Where(a => a.Name.Contains(searchText)).ToList();
 
-                foreach(var item in productListSearchByName)
+                foreach (var item in productListSearchByName)
                     productListSearch.Add(item);
 
                 ViewData["listProduct"] = productListSearch;

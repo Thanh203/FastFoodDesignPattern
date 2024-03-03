@@ -81,7 +81,8 @@ namespace AgentManager.WebApp.Controllers
                 else
                 {
                     // Thêm sản phẩm mới vào giỏ hàng
-                    var product = new CartItem { FFSProductId = productId, Quantity = quantity };
+                    //var product = new CartItem { FFSProductId = productId, Quantity = quantity };
+                    var product = new CartItem(data.FFSProductId = productId, quantity = quantity);
                     cartItems.Add(product);
                 }
 

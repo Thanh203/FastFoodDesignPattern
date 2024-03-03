@@ -7,13 +7,13 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace FastFoodSystem.WebApp.Controllers
 {
-    [Authorize (Roles = "Admin,Manager")]
+    //[Authorize (Roles = "Admin,Manager")]
     public class PositionController : Controller
     {
         DBHelper dBHelper;
         public PositionController(FastFoodSystemDbContext db)
         {
-            dBHelper = new DBHelper(db);
+            dBHelper = DBHelper.GetInstance(db);
         }
 
         public IActionResult Index()

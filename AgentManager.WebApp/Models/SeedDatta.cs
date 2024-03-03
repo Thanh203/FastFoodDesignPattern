@@ -54,7 +54,7 @@ namespace FastFoodSystem.WebApp.Models
 				if (!context.FFSProductCategories.Any())
 				{
 					context.AddRange(
-						new FFSProductCategory
+                        new FFSProductCategory
 						{
 							FFSProductCategoryId = "BG",
 							Name = "Burger"
