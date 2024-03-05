@@ -47,15 +47,11 @@ namespace FastFoodSystem.WebApp.Controllers
 
                 foreach (var cartItem in cartItems)
                 {
-                    CartItem sanPhamVM = new CartItem()
-                    {
-                        FFSProductId = cartItem.FFSProductId,
-                        tenSanPham = dBHelper.GetProductByID(cartItem.FFSProductId).Name,
-                        anh = dBHelper.GetProductByID(cartItem.FFSProductId).Image,
-                        gia = dBHelper.GetProductByID(cartItem.FFSProductId).Price,
-                        Quantity = cartItem.Quantity,
-                    };
-                    bill += sanPhamVM.total;
+                    CartItem sanPhamVM = CartItem.GetInstance(cartItem.FFSProductId, cartItem.Quantity);
+                    sanPhamVM.TenSanPham = dBHelper.GetProductByID(cartItem.FFSProductId).Name;
+                    sanPhamVM.Anh = dBHelper.GetProductByID(cartItem.FFSProductId).Image;
+                    sanPhamVM.Gia = dBHelper.GetProductByID(cartItem.FFSProductId).Price;
+                    bill += sanPhamVM.Gia * sanPhamVM.Quantity;
                     sanPhamVMs.Add(sanPhamVM);
                 }
 
@@ -246,7 +242,7 @@ namespace FastFoodSystem.WebApp.Controllers
 
                 foreach (var cart in lst)
                 {
-                    staffInfoHtml.Append($"<tr><td>{cart.tenSanPham}</td><td>{cart.Quantity}</td><td>{cart.gia}</td><td>{cart.total}</td></tr>");
+                    staffInfoHtml.Append($"<tr><td>{cart.TenSanPham}</td><td>{cart.Quantity}</td><td>{cart.Gia}</td><td>{cart.Total}</td></tr>");
                 }
 
                 // Thay thế {{StaffInfo}} bằng nội dung đã xây dựng
