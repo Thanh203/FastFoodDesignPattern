@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FastFoodSystem.WebApp.Controllers
 {
-    //[Authorize (Roles = "Admin,Manager")]
+    [Authorize (Roles = "Admin,Manager")]
     public class VoucherController : Controller
     {
         private readonly FastFoodSystemDbContext _context;
@@ -15,7 +15,7 @@ namespace FastFoodSystem.WebApp.Controllers
         public VoucherController(FastFoodSystemDbContext context, FastFoodSystemDbContext db)
         {
             _context = context;
-            dbHelper = DBHelper.GetInstance(db);
+            dbHelper = new DBHelper(db);
         }
         public async Task<IActionResult> Index(string searchText = "")
         {

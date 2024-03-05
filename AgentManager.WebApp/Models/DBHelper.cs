@@ -3,35 +3,23 @@ using FastFoodSystem.WebApp.Models.Data;
 
 namespace FastFoodSystem.WebApp.Models
 {
-    //Make it to singleton class >>>
     public class DBHelper
     {
-        private static DBHelper instance; // Static instance
-        private readonly FastFoodSystemDbContext dbContext; 
-
-        // Constructor private eject create object outside this class
-        private DBHelper(FastFoodSystemDbContext dbContext)
+        FastFoodSystemDbContext dbContext;
+        public DBHelper(FastFoodSystemDbContext dbContext)
         {
             this.dbContext = dbContext;
         }
 
-        // Method static to create only 1 instance
-        public static DBHelper GetInstance(FastFoodSystemDbContext dbContext)
+        public List<FFSProduct> GetProducts()
         {
-            if (instance == null)
-            {
-                instance = new DBHelper(dbContext);
-            }
-            return instance;
+            return dbContext.FFSProducts.ToList();
         }
-        //public List<FFSProduct> GetProducts() => dbContext.FFSProducts.ToList();
-        public List<FFSProduct> GetProducts(FastFoodSystemDbContext dbContext) => dbContext.FFSProducts.ToList();
 
-        public FFSProduct GetProductByID(string id) => dbContext.FFSProducts.First(x => x.FFSProductId == id) as FFSProduct;
-        //public FFSProduct GetProductByID(string id)
-        //{
-        //    return dbContext.FFSProducts.First(x => x.FFSProductId == id);
-        //}
+        public FFSProduct GetProductByID(string id)
+        {
+            return dbContext.FFSProducts.First(x => x.FFSProductId == id);
+        }
 
         public void InsertProduct(FFSProduct sanPham)
         {
@@ -144,5 +132,6 @@ namespace FastFoodSystem.WebApp.Models
             dbContext.FFSVouchers.Remove(voucher);
             dbContext.SaveChanges();
         }
+
     }
 }

@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace FastFoodSystem.WebApp.Controllers
 {
-    //[Authorize(Roles = "Admin,Manager")]
+    [Authorize(Roles = "Admin,Manager")]
     public class StaffController : Controller
     {
         private readonly FastFoodSystemDbContext _context;
@@ -19,7 +19,7 @@ namespace FastFoodSystem.WebApp.Controllers
         public StaffController(FastFoodSystemDbContext context, FastFoodSystemDbContext db)
         {
             _context = context;
-            dbHelper = DBHelper.GetInstance(db);
+            dbHelper = new DBHelper(db);
         }
 
         // GET: Agent
