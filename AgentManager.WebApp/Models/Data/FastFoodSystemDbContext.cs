@@ -23,12 +23,8 @@ namespace FastFoodSystem.WebApp.Models.Data
         public DbSet<Position>? Positions { get; set; }
         public DbSet<Staff>? Staffs { get; set; }
 
-        //FastFoodSystem
-        public DbSet<FFSProduct>? FFSProducts { get; set; }
-        //public DbSet<IFFSProductComponent> FFSProducts { get; set; }
-
-        //Composite pattern update
-
+		//FastFoodSystem
+		public DbSet<FFSProduct>? FFSProducts { get; set; }
         [JsonIgnore]
         public DbSet<FFSProductOrder>? FFSProductOrders { get; set; }
 		public DbSet<FFSProductCategory>? FFSProductCategories { get; set; }

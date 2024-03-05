@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 namespace AgentManager.WebApp.Controllers
 {
 
-    //[Authorize(Roles = "Admin,Manager,Staff")]
+    [Authorize(Roles = "Admin,Manager,Staff")]
     public class CategoriesController : Controller
     {
         private readonly FastFoodSystemDbContext _context;

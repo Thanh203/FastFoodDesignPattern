@@ -81,7 +81,7 @@ namespace AgentManager.WebApp.Controllers
                 else
                 {
                     // Thêm sản phẩm mới vào giỏ hàng
-                    var product = CartItem.GetInstance(productId, quantity);
+                    var product = new CartItem { FFSProductId = productId, Quantity = quantity };
                     cartItems.Add(product);
                 }
 
@@ -127,9 +127,13 @@ namespace AgentManager.WebApp.Controllers
             foreach (var product in products)
             {
                 var obj = _context.FFSProducts.FirstOrDefault(item => item.FFSProductId == product.FFSProductId);
-                CartItem _product = CartItem.GetInstance(obj.FFSProductId, product.Quantity);
-                _product.TenSanPham = obj.Name;
-                _product.Gia = obj.Price;
+                CartItem _product = new CartItem()
+                {
+                    FFSProductId = obj.FFSProductId,
+                    tenSanPham = obj.Name,
+                    gia = obj.Price,
+                    Quantity = product.Quantity,
+                };
                 _products.Add(_product);
             }
 
@@ -176,9 +180,13 @@ namespace AgentManager.WebApp.Controllers
             foreach (var product in products)
             {
                 var obj = _context.FFSProducts.FirstOrDefault(item => item.FFSProductId == product.FFSProductId);
-                CartItem _product = CartItem.GetInstance(obj.FFSProductId, product.Quantity);
-                _product.TenSanPham = obj.Name;
-                _product.Gia = obj.Price;
+                CartItem _product = new CartItem()
+                {
+                    FFSProductId = obj.FFSProductId,
+                    tenSanPham = obj.Name,
+                    gia = obj.Price,
+                    Quantity = product.Quantity,
+                };
                 _products.Add(_product);
             }
             
@@ -197,9 +205,13 @@ namespace AgentManager.WebApp.Controllers
             foreach (var product in products)
             {
                 var obj = _context.FFSProducts.FirstOrDefault(item => item.FFSProductId == product.FFSProductId);
-                CartItem _product = CartItem.GetInstance(obj.FFSProductId, product.Quantity);
-                _product.TenSanPham = obj.Name;
-                _product.Gia = obj.Price;
+                CartItem _product = new CartItem()
+                {
+                    FFSProductId = obj.FFSProductId,
+                    tenSanPham = obj.Name,
+                    gia = obj.Price,
+                    Quantity = product.Quantity,
+                };
                 _products.Add(_product);
             }
 
