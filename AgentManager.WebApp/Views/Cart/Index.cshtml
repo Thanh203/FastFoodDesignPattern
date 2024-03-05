@@ -25,14 +25,14 @@
                     {
                         <div class="row align-items-center" >
                             <div class="col-md-3">
-                                @if (sanPham.anh == "")
+                                @if (sanPham.Anh == "")
                                 {
                                     <img src="https://static.kfcvietnam.com.vn/images/category/lg/GA.jpg?v=3GWGD3"
                                          class="img-fluid" alt="Generic placeholder image">
                                 }
                                 else
                                 {
-                                    <img src="@sanPham.anh"
+                                    <img src="@sanPham.Anh"
                                          class="img-fluid" alt="Generic placeholder image"
                                     style="height:200px; width: 235px; padding:15px;">
                                 }
@@ -40,7 +40,7 @@
                             <div class="col-md-3 d-flex justify-content-center">
                                 <div>
                                     <p class="small text-muted mb-4 pb-2">Tên</p>
-                                    <p class="lead fw-normal mb-0">@sanPham.tenSanPham</p>
+                                    <p class="lead fw-normal mb-0">@sanPham.TenSanPham</p>
                                 </div>
                             </div>
                             <div class="col-md-2 d-flex justify-content-center">
@@ -53,7 +53,7 @@
                                 <div>
                                     <p class="small text-muted mb-4 pb-2">Giá</p>
                                     <p class="lead fw-normal mb-0">
-                                        @string.Format("{0:#,##0}", sanPham.gia) VND
+                                        @string.Format("{0:#,##0}", sanPham.Gia) VND
                                     </p>
                                 </div>
                             </div>
@@ -61,7 +61,7 @@
                                 <div>
                                     <p class="small text-muted mb-4 pb-2">Tổng</p>
                                     <p class="lead fw-normal mb-0">
-                                        @string.Format("{0:#,##0}", sanPham.total) VND
+                                        @string.Format("{0:#,##0}", sanPham.Total) VND
                                     </p>
                                 </div>
                             </div>
