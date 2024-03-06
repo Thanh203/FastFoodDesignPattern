@@ -21,13 +21,15 @@ namespace FastFoodSystem.WebApp.Controllers
         private readonly IHttpContextAccessor _contx;
         private readonly FastFoodSystemDbContext _context;
         private readonly UserManager<Staff> _userManager;
+        private readonly ICartItemFactory _cartItemFactory;
         DBHelper dBHelper;
-        public CartController(FastFoodSystemDbContext db, FastFoodSystemDbContext context, UserManager<Staff> userManager)
+        public CartController(FastFoodSystemDbContext db, FastFoodSystemDbContext context, UserManager<Staff> userManager, ICartItemFactory cartItemFactory)
         {
             _contx = new HttpContextAccessor();
             dBHelper = new DBHelper(db);
             _context = context;
             _userManager = userManager;
+            _cartItemFactory = cartItemFactory;
         }
         public async Task<string> GetCurrentUserIdAsync()
         {
@@ -47,16 +49,9 @@ namespace FastFoodSystem.WebApp.Controllers
 
                 foreach (var cartItem in cartItems)
                 {
-                    CartItem sanPhamVM = new CartItem()
-                    {
-                        FFSProductId = cartItem.FFSProductId,
-                        tenSanPham = dBHelper.GetProductByID(cartItem.FFSProductId).Name,
-                        anh = dBHelper.GetProductByID(cartItem.FFSProductId).Image,
-                        gia = dBHelper.GetProductByID(cartItem.FFSProductId).Price,
-                        Quantity = cartItem.Quantity,
-                    };
-                    bill += sanPhamVM.total;
-                    sanPhamVMs.Add(sanPhamVM);
+                    CartItem item = _cartItemFactory.CreateCartItem(cartItem.FFSProductId, cartItem.Quantity);
+                    bill += item.total;
+                    sanPhamVMs.Add(item);
                 }
 
                 list = sanPhamVMs;

@@ -4,6 +4,7 @@ using FastFoodSystem.WebApp.Models.Data;
 using FastFoodSystem.WebApp.Models;
 using DinkToPdf.Contracts;
 using DinkToPdf;
+using FastFoodSystem.WebApp.Models.ViewModel;
 
 var builder = WebApplication.CreateBuilder(args);
 //var connectionString = builder.Configuration.GetConnectionString("AgentManagerDbContextConnection") ?? throw new InvalidOperationException("Connection string 'AgentManagerDbContextConnection' not found.");
@@ -32,7 +33,8 @@ builder.Services.AddAuthorization();
 builder.Services.AddIdentity<Staff, IdentityRole>()
                 .AddEntityFrameworkStores<FastFoodSystemDbContext>()
                 .AddDefaultTokenProviders();
-
+builder.Services.AddScoped<DBHelper>();
+builder.Services.AddTransient<ICartItemFactory, CartItemFactory>();
 
 builder.Services.Configure<IdentityOptions>(options => {
     // Thiết lập về Password
