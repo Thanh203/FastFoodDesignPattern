@@ -1,5 +1,6 @@
 ﻿using FastFoodSystem.WebApp.Models;
 using FastFoodSystem.WebApp.Models.Data;
+using FastFoodSystem.WebApp.Models.ViewModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -12,10 +13,14 @@ namespace FastFoodSystem.WebApp.Controllers
     {
         private readonly FastFoodSystemDbContext _context;
         DBHelper dbHelper;
-        public VoucherController(FastFoodSystemDbContext context, FastFoodSystemDbContext db)
+        private readonly IVoucherRepository _voucherRepository;
+
+
+        public VoucherController(FastFoodSystemDbContext context, FastFoodSystemDbContext db, IVoucherRepository voucherRepository)
         {
             _context = context;
             dbHelper = new DBHelper(db);
+            _voucherRepository = voucherRepository;
         }
         public async Task<IActionResult> Index(string searchText = "")
         {
@@ -50,66 +55,69 @@ namespace FastFoodSystem.WebApp.Controllers
 
             else return View(voucher1);
         }
-        public async Task<IActionResult> Delete(string? id)
+        public async Task<IActionResult> Delete(string id)
         {
-            if (id == null || _context.FFSVouchers == null)
+            if (id == null)
             {
                 return NotFound();
             }
-            var voucher = await _context.FFSVouchers
-                .FirstOrDefaultAsync(m => m.FFSVoucherId == id);
+            var voucher = await _voucherRepository.GetByIdAsync(id);
             if (voucher == null)
             {
                 return NotFound();
             }
             return View(voucher);
         }
+
+
         // POST: Voucher/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(string id)
         {
-            if (_context.FFSVouchers == null)
-            {
-                return Problem("Entity set 'AgentManagerDbContext.Agents'  is null.");
-            }
-            var voucher = await _context.FFSVouchers.FindAsync(id);
-            if (voucher != null)
-            {
-                _context.FFSVouchers.Remove(voucher);
-            }
-            await _context.SaveChangesAsync();
+            await _voucherRepository.DeleteAsync(id);
             return RedirectToAction(nameof(Index));
         }
-        public async Task<IActionResult> Edit(string? id)
+
+
+        public async Task<IActionResult> Edit(string id)
         {
-            if (id == null || _context.FFSVouchers == null)
+            if (id == null)
             {
                 return NotFound();
             }
 
-            var voucher = await _context.FFSVouchers.FindAsync(id);
+            var voucher = await _voucherRepository.GetByIdAsync(id);
             if (voucher == null)
             {
                 return NotFound();
             }
             return View(voucher);
         }
+
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, [Bind("FFSVoucherId, Num, StartDate, EndDate, State, Price")] FFSVoucher voucher)
+        public async Task<IActionResult> Edit(string id, FFSVoucher voucher)
         {
             if (id != voucher.FFSVoucherId)
             {
                 return NotFound();
             }
-            var crvoucher = await _context.FFSVouchers.FindAsync(id);
             if (ModelState.IsValid)
             {
                 try
                 {
-                    _context.Entry(crvoucher).CurrentValues.SetValues(voucher);
-                    await _context.SaveChangesAsync();
+                    var updatedVoucher = new FFSVoucherBuilder()
+                        .WithVoucherId(voucher.FFSVoucherId)
+                        .WithNum(voucher.Num)
+                        .WithPrice(voucher.Price)
+                        .WithStartDate(voucher.StartDate)
+                        .WithEndDate(voucher.EndDate)
+                        .WithState(voucher.State)
+                        .Build();
+
+                    await _voucherRepository.UpdateAsync(updatedVoucher, id);
                     return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateConcurrencyException)
@@ -121,27 +129,30 @@ namespace FastFoodSystem.WebApp.Controllers
 
             return View(voucher);
         }
+
+
         public IActionResult Create()
         {
             return View();
         }
+
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(FFSVoucher voucher)
         {
             if (ModelState.IsValid)
             {
-                FFSVoucher newVoucher = new FFSVoucher();
+                var newVoucher = new FFSVoucherBuilder()
+                 .WithVoucherId(voucher.FFSVoucherId)
+                 .WithNum(voucher.Num)
+                 .WithPrice(voucher.Price)
+                 .WithStartDate(voucher.StartDate)
+                 .WithEndDate(voucher.EndDate)
+                 .WithState(voucher.State)
+                 .Build();
 
-                newVoucher.FFSVoucherId = voucher.FFSVoucherId;
-                newVoucher.Num = voucher.Num;
-                newVoucher.Price = voucher.Price;
-                newVoucher.StartDate = voucher.StartDate;
-                newVoucher.EndDate = voucher.StartDate;
-                newVoucher.State = voucher.State;
-
-                _context.Add(newVoucher);
-                await _context.SaveChangesAsync();
+                await _voucherRepository.AddAsync(newVoucher);
                 return RedirectToAction(nameof(Index));
             }
             return View(voucher);

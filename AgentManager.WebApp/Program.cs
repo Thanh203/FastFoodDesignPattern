@@ -4,6 +4,8 @@ using FastFoodSystem.WebApp.Models.Data;
 using FastFoodSystem.WebApp.Models;
 using DinkToPdf.Contracts;
 using DinkToPdf;
+using FastFoodSystem.WebApp.Models.ViewModel;
+using FluentAssertions.Common;
 
 var builder = WebApplication.CreateBuilder(args);
 //var connectionString = builder.Configuration.GetConnectionString("AgentManagerDbContextConnection") ?? throw new InvalidOperationException("Connection string 'AgentManagerDbContextConnection' not found.");
@@ -15,6 +17,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<FastFoodSystemDbContext>(x => x.UseSqlServer(builder.Configuration.GetConnectionString("AgentManagerDbContext")));
 builder.Services.AddRazorPages();
+
+builder.Services.AddScoped<IVoucherRepository, FFSVoucherRepository>();
+
 
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 #region Session and cookies settings
