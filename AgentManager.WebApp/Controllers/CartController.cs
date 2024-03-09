@@ -81,19 +81,37 @@ namespace FastFoodSystem.WebApp.Controllers
             return View(sanPhamVMs);
         }
 
+        private decimal GetPromoCodeStrategy(decimal bill, FFSVoucher voucher)
+        {
+            if (voucher.State == "Phần trăm")
+            {
+                VoucherContextStrategy context = new VoucherContextStrategy(new PercentagePromoCodeStrategy());
+                return context.CalculateDiscount(bill, voucher);
+            }
+            else if (voucher.State == "VND")
+            {
+                VoucherContextStrategy context = new VoucherContextStrategy(new AmountPromoCodeStrategy());
+                return context.CalculateDiscount(bill, voucher);
+            }
+            return 0;
+        }
 
         [HttpPost]
         public async Task<IActionResult> Index(string promoCode, decimal discountAmount)
         {
             RetrieveCartitem(out List<CartItem> list, out decimal bill);
-            int newOrderId = 0;
             var latestOrder = _context.FFSOrders.OrderByDescending(o => o.FFSOrderId).FirstOrDefault();
+            FFSVoucher voucher = _context.FFSVouchers.FirstOrDefault(v => v.FFSVoucherId == promoCode);
+
+            int newOrderId = 0;
+            discountAmount = 0;
+            string errorMessage = null;
 
             if (latestOrder != null)
             {
-                // Nếu có hoá đơn, tăng giá trị ID lên 1 để tạo ID mới
                 newOrderId = latestOrder.FFSOrderId + 1;
             }
+
             // Tạo một hoá đơn mới với ID mới
             List<FFSProductOrder> productOrders = new List<FFSProductOrder>();
             foreach (var cartItem in list)
@@ -106,34 +124,32 @@ namespace FastFoodSystem.WebApp.Controllers
                 };
                 productOrders.Add(productOrder);
             }
-            FFSVoucher voucher = _context.FFSVouchers.FirstOrDefault(v => v.FFSVoucherId == promoCode);
 
-            if (voucher != null && IsValidPromoCode(voucher))
+            if (voucher != null)
             {
-                discountAmount = 0;
-                if (voucher.State == "Phần trăm")
+                if (!IsValidPromoCode(voucher))
                 {
-                    discountAmount = (bill * (decimal)(voucher.Price / 100));
-                    if (discountAmount < voucher.Num)
-                    {
-                        bill -= discountAmount;
-                    }
-                    else
-                    {
-                        discountAmount = voucher.Num;
-                        bill -= discountAmount;
-                    }
-                    
+                    errorMessage = "Mã khuyến mãi đã hết hạn sử dụng.";
                 }
-                else if (voucher.State == "VND")
+                else
                 {
-                    discountAmount = (decimal)voucher.Num;
-                    bill -= discountAmount;
+                    discountAmount = GetPromoCodeStrategy(bill, voucher);
+                    bill -= discountAmount;                   
                 }
+            }
+            else
+            {
+                errorMessage = "Mã khuyến mãi không tồn tại.";
+            }
 
+            if (string.IsNullOrEmpty(errorMessage))
+            {
                 ViewBag.PromoCode = voucher.FFSVoucherId;
                 ViewBag.DiscountAmount = discountAmount;
-
+            }
+            else
+            {
+                TempData["ErrorMessage"] = errorMessage;
             }
             var newOrder = new FFSOrder
             {
@@ -145,7 +161,7 @@ namespace FastFoodSystem.WebApp.Controllers
                 FFSVoucherId = voucher.FFSVoucherId,
                 FFSProductOrders = productOrders
             };
-            // Lưu hoá đơn mới vào cơ sở dữ liệu
+
             _context.FFSOrders.Add(newOrder);
             _context.SaveChanges();
             Console.WriteLine("Add Success");
@@ -168,6 +184,11 @@ namespace FastFoodSystem.WebApp.Controllers
                 {
                     errorMessage = "Mã khuyến mãi đã hết hạn sử dụng.";
                 }
+                else
+                {
+                    discountAmount = GetPromoCodeStrategy(bill, voucher);
+                    bill -= discountAmount;
+                }
             }
             else
             {
@@ -176,25 +197,6 @@ namespace FastFoodSystem.WebApp.Controllers
 
             if (string.IsNullOrEmpty(errorMessage))
             {
-                if (voucher.State == "Phần trăm")
-                {
-                    discountAmount = (bill * (decimal)(voucher.Price / 100));
-                    if (discountAmount < voucher.Num)
-                    {
-                        bill -= discountAmount;
-                    }
-                    else
-                    {
-                        discountAmount = voucher.Num;
-                        bill -= discountAmount;
-                    }
-                }
-                else if (voucher.State == "VND")
-                {
-                    discountAmount = (decimal)voucher.Num;
-                    bill -= discountAmount;
-                }
-
                 ViewBag.PromoCode = voucher.FFSVoucherId;
                 ViewBag.DiscountAmount = discountAmount;
             }
@@ -249,7 +251,6 @@ namespace FastFoodSystem.WebApp.Controllers
                     staffInfoHtml.Append($"<tr><td>{cart.tenSanPham}</td><td>{cart.Quantity}</td><td>{cart.gia}</td><td>{cart.total}</td></tr>");
                 }
 
-                // Thay thế {{StaffInfo}} bằng nội dung đã xây dựng
                 htmlTemplate = htmlTemplate.Replace("{{StaffInfo}}", staffInfoHtml.ToString())
                                             .Replace("{{IdBill}}", id.ToString())
                                             .Replace("{{IdStaff}}", bill.StaffId)
