@@ -19,6 +19,9 @@ builder.Services.AddDbContext<FastFoodSystemDbContext>(x => x.UseSqlServer(build
 builder.Services.AddRazorPages();
 
 builder.Services.AddScoped<IVoucherRepository, FFSVoucherRepository>();
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+
 
 
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();

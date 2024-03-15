@@ -1,7 +1,7 @@
 ﻿@*
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
-@model FastFoodSystem.WebApp.Models.ViewModel.SanPhamVM
+@model FastFoodSystem.WebApp.Models.Data.FFSProduct
 
 @{
     Layout = "~/Views/Shared/_mLayout.cshtml";
@@ -9,6 +9,12 @@
 <form asp-action="Create" class="content">
     <div class="row">
         <div class="col">
+            @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
+            {
+                <div class="alert alert-danger" role="alert">
+                    @ViewBag.ErrorMessage
+                </div>
+            }
             <div class="card card-secondary">
                 <div class="card-header">
                     <h3 class="card-title">Thêm sản phẩm</h3>
@@ -16,34 +22,34 @@
                 <div class="card-body">
                     @Html.ValidationSummary(false, "", new { @class = "text-danger" })
                     <div class="form-group">
-                        <label>Mã sản phẩm: </label>
-                        <input asp-for="maSanPham" type="text" class="form-control" />
-                        <span asp-validation-for="maSanPham" class="text-danger small"></span>
+                        <label asp-for="FFSProductId"></label>
+                        @Html.TextBoxFor(model => model.FFSProductId, new { Required = "Required", @class = "form-control"})
+                        <span asp-validation-for="FFSProductId" class="text-danger small"></span>
                     </div>
                     <div class="form-group">
-                        <label>Tên sản phẩm: </label>
-                        <input asp-for="tenSanPham" type="text" class="form-control" />
-                        <span asp-validation-for="tenSanPham" class="text-danger small"></span>
+                        <label asp-for="Name"></label>
+                        @Html.TextBoxFor(model => model.Name, new { Required = "Required", @class = "form-control"})
+                        <span asp-validation-for="Name" class="text-danger small"></span>
                     </div>
                     <div class="form-group">
-                        <label>Ảnh</label>
-                        <input asp-for="anh" type="text" class="form-control" />
-                        <span asp-validation-for="anh" class="text-danger small"></span>
+                        <label asp-for="Image"></label>
+                        @Html.TextBoxFor(model => model.Image, new { Required = "Required", @class = "form-control"})
+                        <span asp-validation-for="Image" class="text-danger small"></span>
                     </div>
                     <div class="form-group">
-                        <label>Mô tả: </label>
-                        <input asp-for="mota" type="text" class="form-control" />
-                        <span asp-validation-for="mota" class="text-danger small"></span>
+                        <label asp-for="Desc"></label>
+                        @Html.TextBoxFor(model => model.Desc, new { Required = "Required", @class = "form-control"})
+                        <span asp-validation-for="Desc" class="text-danger small"></span>
                     </div>
                     <div class="form-group">
-                        <label>Loại sản phẩm: </label>
-                        @Html.DropDownListFor(model => model.loaiSanPham, (SelectList)ViewBag.Categories, "Chọn danh mục", new { @class = "form-control" })
-                        <span asp-validation-for="loaiSanPham" class="text-danger small"></span>
+                        <label>Chọn danh mục</label>
+                        @Html.DropDownListFor(model => model.FFSProductCategoryId, (SelectList)ViewBag.Categories, "Chọn danh mục", new { @class = "form-control" })
+                        <span asp-validation-for="FFSProductCategoryId" class="text-danger small"></span>
                     </div>
                     <div class="form-group">
-                        <label>Giá</label>
-                        <input asp-for="gia" type="number" class="form-control" />
-                        <span asp-validation-for="gia" class="text-danger small"></span>
+                        <label asp-for="Price"></label>
+                        @Html.TextBoxFor(model => model.Price, new { Required = "Required", @class = "form-control", type = "number"})
+                        <span asp-validation-for="Price" class="text-danger small"></span>
                     </div>                 
                 </div>
             </div>

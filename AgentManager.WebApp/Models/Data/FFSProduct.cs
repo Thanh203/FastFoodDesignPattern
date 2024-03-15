@@ -21,8 +21,10 @@ namespace FastFoodSystem.WebApp.Models.Data
         [Required]
         public int Price { get; set; }
 
-        [Display(Name = "Loại sản phẩm")]
+        [Display(Name = "Mã danh mục")]
         public string? FFSProductCategoryId { get; set; }
+
+        [Display(Name = "Tên danh mục")]
         [JsonIgnore]
         public FFSProductCategory? FFSProductCategory { get; set; }
 

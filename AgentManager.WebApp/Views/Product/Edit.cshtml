@@ -1,7 +1,5 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@model FastFoodSystem.WebApp.Models.ViewModel.SanPhamVM
+﻿
+@model FastFoodSystem.WebApp.Models.Data.FFSProduct
 
 
 @{
@@ -9,44 +7,50 @@
 }
 
 <form asp-action="Edit" class="content">
-    <div class="row">
-        <div class="col">
-            <div class="card card-info">
-                <div class="card-header">
-                    <h3 class="card-title">Sửa thông tin sản phẩm</h3>
-                </div>
+    <div class="card card-secondary">
+        @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
+        {
+            <div class="alert alert-danger" role="alert">
+                @ViewBag.ErrorMessage
+            </div>
+        }
+        <div class="card-header">
+            <h3 class="card-title">Sửa thông tin sản phẩm</h3>
+        </div>  
+        <div class="row">
+            <div class="col">
                 <div class="card-body">
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                     <div class="form-group">
-                        <label>Mã sản phẩm: </label>
-                        <input asp-for="maSanPham" type="text" class="form-control" />
-                        <span asp-validation-for="maSanPham" class="text-danger small"></span>
+                        <label asp-for="FFSProductId"></label>
+                        <input asp-for="FFSProductId" type="text" class="form-control" readonly="readonly" />
+                        <span asp-validation-for="FFSProductId" class="text-danger small"></span>
                     </div>
                     <div class="form-group">
-                        <label>Tên sản phẩm: </label>
-                        <input asp-for="tenSanPham" type="text" class="form-control" />
-                        <span asp-validation-for="tenSanPham" class="text-danger small"></span>
+                        <label asp-for="Name"></label>
+                        <input asp-for="Name" type="text" class="form-control" />
+                        <span asp-validation-for="Name" class="text-danger small"></span>
                     </div>
                     <div class="form-group">
-                        <label>Ảnh</label>
-                        <input asp-for="anh" type="text" class="form-control" />
-                        <span asp-validation-for="anh" class="text-danger small"></span>
+                        <label asp-for="Image"></label>
+                        <input asp-for="Image" type="text" class="form-control" />
+                        <span asp-validation-for="Image" class="text-danger small"></span>
                     </div>
                     <div class="form-group">
-                        <label>Mô tả: </label>
-                        <input asp-for="mota" type="text" class="form-control" />
-                        <span asp-validation-for="mota" class="text-danger small"></span>
+                        <label asp-for="Desc"></label>
+                        <input asp-for="Desc" type="text" class="form-control" />
+                        <span asp-validation-for="Desc" class="text-danger small"></span>
 
                     </div>
                     <div class="form-group">
-                        <label>Loại sản phẩm: </label>
-                        <input asp-for="loaiSanPham" type="text" class="form-control" />
-                        <span asp-validation-for="loaiSanPham" class="text-danger small"></span>
+                        <label asp-for="FFSProductCategoryId"></label>
+                        <input asp-for="FFSProductCategoryId" type="text" class="form-control" />
+                        <span asp-validation-for="FFSProductCategoryId" class="text-danger small"></span>
                     </div>
                     <div class="form-group">
-                        <label>Giá</label>
-                        <input asp-for="gia" type="number" class="form-control" />
-                        <span asp-validation-for="gia" class="text-danger small"></span>
+                        <label asp-for="Price"></label>
+                        <input asp-for="Price" type="number" class="form-control" />
+                        <span asp-validation-for="Price" class="text-danger small"></span>
                     </div>
                 </div>
             </div>

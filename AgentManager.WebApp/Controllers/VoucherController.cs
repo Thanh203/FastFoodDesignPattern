@@ -6,55 +6,48 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
+
 namespace FastFoodSystem.WebApp.Controllers
 {
     [Authorize (Roles = "Admin,Manager")]
     public class VoucherController : Controller
     {
-        private readonly FastFoodSystemDbContext _context;
-        DBHelper dbHelper;
         private readonly IVoucherRepository _voucherRepository;
 
-
-        public VoucherController(FastFoodSystemDbContext context, FastFoodSystemDbContext db, IVoucherRepository voucherRepository)
+        public VoucherController(IVoucherRepository voucherRepository)
         {
-            _context = context;
-            dbHelper = new DBHelper(db);
             _voucherRepository = voucherRepository;
         }
-        public async Task<IActionResult> Index(string searchText = "")
+
+        public async Task<IActionResult> Index()
         {
-            ViewBag.SearchText = searchText;
-            var fFSVouchers = _context.FFSVouchers;
+            var voucher = await _voucherRepository.GetAllAsync();
 
-            if (!String.IsNullOrEmpty(searchText))
-            {
-                var fFSVouchersListSearch = _context.FFSVouchers
-                    .Where(a => a.FFSVoucherId.Contains(searchText));
-
-                return View(await fFSVouchersListSearch.ToListAsync());
-            }
-            return View(await fFSVouchers.ToListAsync());
+            return View(voucher);
         }
+
+
         public async Task<IActionResult> Details(string? id)
         {
-            var voucher = dbHelper.GetVoucherByID(id);
+            var voucher = await _voucherRepository.GetByIdAsync(id);
 
             if (voucher == null) return NotFound();
 
             FFSVoucher voucher1 = new FFSVoucher()
             {
-                FFSVoucherId = dbHelper.GetVoucherByID(id).FFSVoucherId,
-                Num = dbHelper.GetVoucherByID(id).Num,
-                Price = dbHelper.GetVoucherByID(id).Price,
-                StartDate = dbHelper.GetVoucherByID(id).StartDate,
-                EndDate = dbHelper.GetVoucherByID(id).StartDate,
-                State = dbHelper.GetVoucherByID(id).State,
+                FFSVoucherId = voucher.FFSVoucherId,
+                Num = voucher.Num,
+                Price = voucher.Price,
+                StartDate = voucher.StartDate,
+                EndDate = voucher.StartDate,
+                State = voucher.State,
             };
             if (voucher1 == null) return NotFound();
 
             else return View(voucher1);
         }
+
+
         public async Task<IActionResult> Delete(string id)
         {
             if (id == null)
@@ -70,7 +63,6 @@ namespace FastFoodSystem.WebApp.Controllers
         }
 
 
-        // POST: Voucher/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(string id)
@@ -103,6 +95,11 @@ namespace FastFoodSystem.WebApp.Controllers
             if (id != voucher.FFSVoucherId)
             {
                 return NotFound();
+            }
+            else if (voucher.StartDate >= voucher.EndDate)
+            {
+                ViewBag.ErrorMessage = "Ngày bắt đầu phải bé hơn ngày kết thúc";
+                return View();
             }
             if (ModelState.IsValid)
             {
@@ -141,6 +138,24 @@ namespace FastFoodSystem.WebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(FFSVoucher voucher)
         {
+            var chain = new ChainOfHanderIdVoucher();
+
+            if (await _voucherRepository.GetByIdAsync(voucher.FFSVoucherId) != null)
+            {
+                ViewBag.ErrorMessage = "ID đã tồn tại";
+                return View();
+            }
+            else if (chain.Handler(voucher.FFSVoucherId) != null)
+            {
+                ViewBag.ErrorMessage = chain.Handler(voucher.FFSVoucherId);
+                return View();
+            }
+            else if (voucher.StartDate >= voucher.EndDate)
+            {
+                ViewBag.ErrorMessage = "Ngày bắt đầu phải bé hơn ngày kết thúc";
+                return View();
+            }
+
             if (ModelState.IsValid)
             {
                 var newVoucher = new FFSVoucherBuilder()
