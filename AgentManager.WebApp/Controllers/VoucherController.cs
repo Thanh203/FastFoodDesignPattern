@@ -145,7 +145,7 @@ namespace FastFoodSystem.WebApp.Controllers
                 ViewBag.ErrorMessage = "ID đã tồn tại";
                 return View();
             }
-            if (chain.Handler(voucher.FFSVoucherId) != null)
+            else if (chain.Handler(voucher.FFSVoucherId) != null)
             {
                 ViewBag.ErrorMessage = chain.Handler(voucher.FFSVoucherId);
                 return View();

@@ -1,4 +1,5 @@
 ﻿using FastFoodSystem.WebApp.Models.Data;
+using FastFoodSystem.WebApp.Models.ViewModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -7,56 +8,66 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AgentManager.WebApp.Controllers
 {
-
     [Authorize(Roles = "Admin,Manager,Staff")]
     public class CategoriesController : Controller
     {
-        private readonly FastFoodSystemDbContext _context;
+        private readonly ICategoryRepository _categoryRepository;
 
-        public CategoriesController(FastFoodSystemDbContext context)
+        public CategoriesController(ICategoryRepository categoryRepository)
         {
-            _context = context;
+            _categoryRepository = categoryRepository;
         }
 
-        // GET: CategoriesController
+
         public async Task<IActionResult> Index()
         {
-            var ProductCategoriesContext = _context.FFSProductCategories;
-            return View(await ProductCategoriesContext.ToListAsync());
+            var productCategories = await _categoryRepository.GetAllAsync();
+            return View(productCategories);
         }
-        // GET: CategoriesController/Create
+
+
         [Authorize(Roles = "Admin,Manager")]
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: CategoriesController/Create
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin,Manager")]
-        public async Task<IActionResult> Create([Bind("FFSProductCategoryId, Name")] FFSProductCategory category)
+        public async Task<IActionResult> Create(FFSProductCategory category)
         {
+            if (await _categoryRepository.GetByIdAsync(category.FFSProductCategoryId) != null)
+            {
+                ViewBag.ErrorMessage = "ID đã tồn tại";
+                return View();
+            }
+
             if (ModelState.IsValid)
             {
-                _context.Add(category);
-                await _context.SaveChangesAsync();
+                await _categoryRepository.AddAsync(category);
                 return RedirectToAction(nameof(Index));
             }
-            else Console.WriteLine("Error");
+            else 
+            {
+                Console.WriteLine("Error");
+            };
+
             return View(category);
         }
 
-        // GET: CategoriesController/Edit/5
+
         [Authorize(Roles = "Admin,Manager")]
         public async Task<IActionResult> Edit(string id)
         {
-            if (id == null || _context.FFSProductCategories == null)
+            if (id == null)
             {
                 return NotFound();
             }
 
-            var category = await _context.FFSProductCategories.FindAsync(id);
+            var category = await _categoryRepository.GetByIdAsync(id);
+
             if (category == null)
             {
                 return NotFound();
@@ -64,11 +75,11 @@ namespace AgentManager.WebApp.Controllers
             return View(category);
         }
        
-        // POST: CategoriesController/Edit/5
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin,Manager")]
-        public async Task<IActionResult> Edit(string id, [Bind("FFSProductCategoryId, Name")] FFSProductCategory productCategory)
+        public async Task<IActionResult> Edit(string id, FFSProductCategory productCategory)
         {
             if (id != productCategory.FFSProductCategoryId)
             {
@@ -79,8 +90,7 @@ namespace AgentManager.WebApp.Controllers
             {
                 try
                 {
-                    _context.Update(productCategory);
-                    await _context.SaveChangesAsync();
+                    await _categoryRepository.UpdateAsync(productCategory, id);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -92,17 +102,16 @@ namespace AgentManager.WebApp.Controllers
             return View(productCategory);
         }
 
-        // GET: CategoriesController/Delete/5
+
         [Authorize(Roles = "Admin,Manager")]
-        public async Task<IActionResult> Delete(string? id)
+        public async Task<IActionResult> Delete(string id)
         {
-            if (id == null || _context.FFSProductCategories == null)
+            if (id == null)
             {
                 return NotFound();
             }
 
-            var productCategory = await _context.FFSProductCategories
-                .FirstOrDefaultAsync(m => m.FFSProductCategoryId == id);
+            var productCategory = await _categoryRepository.GetByIdAsync(id);
             if (productCategory == null)
             {
                 return NotFound();
@@ -111,23 +120,13 @@ namespace AgentManager.WebApp.Controllers
             return View(productCategory);
         }
 
-        // POST: CategoriesController/Delete/5
+
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin,Manager")]
         public async Task<IActionResult> DeleteConfirmed(string id)
         {
-            if (_context.FFSProductCategories == null)
-            {
-                return Problem("Entity set 'FastFoodSystemDbContext.FFSProductCategory'  is null.");
-            }
-            var category = await _context.FFSProductCategories.FindAsync(id);
-            if (category != null)
-            {
-                _context.FFSProductCategories.Remove(category);
-            }
-
-            await _context.SaveChangesAsync();
+            await _categoryRepository.DeleteAsync(id);
             return RedirectToAction(nameof(Index));
         }
     }

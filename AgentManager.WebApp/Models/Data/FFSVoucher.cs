@@ -7,18 +7,23 @@ namespace FastFoodSystem.WebApp.Models.Data
         [Required]
         [Display (Name = "Mã giảm giá")]
         public string FFSVoucherId { get; set; }
+
         [Required]
-        [Display(Name = "Giới hạn mức")]
+        [Display(Name = "Số lượng")]
         public int Num {  get; set; }
+
         [Required]
         [Display(Name = "Ngày bắt đầu")]
         public DateTime StartDate { get; set; }
+
         [Required]
         [Display(Name = "Ngày kết thúc")]
         public DateTime EndDate { get; set; }
+
         [Required]
         [Display(Name = "Đơn vị")]
         public string State { get; set; }
+
         [Display(Name = "Giảm")]
         public double Price { get; set; }
 

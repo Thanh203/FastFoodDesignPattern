@@ -18,7 +18,7 @@ namespace FastFoodSystem.WebApp.Models
 
         public FFSProduct GetProductByID(string id)
         {
-            return dbContext.FFSProducts.First(x => x.FFSProductId == id);
+            return dbContext.FFSProducts.FirstOrDefault(x => x.FFSProductId == id);
         }
 
         public void InsertProduct(FFSProduct sanPham)

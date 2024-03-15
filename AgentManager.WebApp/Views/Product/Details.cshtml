@@ -3,9 +3,8 @@
 *@
 @{  
     Layout = "~/Views/Shared/_mLayout.cshtml";
-    string imageUrl = Model.anh;
 }
-@model FastFoodSystem.WebApp.Models.ViewModel.SanPhamVM
+@model FastFoodSystem.WebApp.Models.Data.FFSProduct
 <div class="container mt-3 mb-5">
     <div class="row d-flex justify-content-center">
         <div class="col-md-10">
@@ -13,23 +12,40 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="images p-3">
-                            <div class="text-center p-4"> <img id="main-image" src="@Html.DisplayFor(model => model.anh)" width="350" /> </div>
+                            <div class="text-center p-4"> 
+                                <img id="main-image" src="@Html.DisplayFor(model => model.Image)" width="350" /> 
+                            </div>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="product p-4">
                             <div class="mt-4 mb-3">
                                 <div style="text-align: right;">
-                                    <span class="text-uppercase text-muted brand" style="float: left;">@Html.DisplayFor(model => model.maSanPham)</span>
-                                    <span class="text-uppercase text-muted brand">@Html.DisplayFor(model => model.loaiSanPham)</span>
+                                    <span class="text-uppercase text-muted brand " style="float: left;">
+                                        <b>@Html.DisplayNameFor(model => model.FFSProductId): &nbsp;</b>
+                                        @Html.DisplayFor(model => model.FFSProductId)
+                                    </span>
+                                    <span class="text-uppercase text-muted brand " style="padding-top: 20px;">
+                                        <b>@Html.DisplayNameFor(model => model.FFSProductCategory): &nbsp;</b>
+                                        @Html.DisplayFor(model => model.FFSProductCategoryId)
+                                    </span>
                                 </div>
 
-                                <h5 class="text-uppercase">@Html.DisplayFor(model => model.tenSanPham)</h5>
-                                <div class="price d-flex flex-row align-items-center">
-                                    <span class="act-price">@Html.DisplayFor(model => model.gia) VND</span>
+                                <h6 class="text-uppercase" style="padding-top: 20px;">
+                                    <b>@Html.DisplayNameFor(model => model.Name): &nbsp;</b>
+                                    @Html.DisplayFor(model => model.Name)
+                                </h6>
+                                <div class="price d-flex flex-row align-items-center" style="padding-top: 20px;">
+                                    <span class="act-price">
+                                        <b>@Html.DisplayNameFor(model => model.Price): &nbsp;</b>
+                                        @Html.DisplayFor(model => model.Price) VND
+                                    </span>
                                 </div>
                             </div>
-                            <p class="about">@Html.DisplayFor(model => model.mota)</p>
+                            <p class="about" style="padding-top: 20px;">
+                                <b>@Html.DisplayNameFor(model => model.Desc): &nbsp;</b>
+                                @Html.DisplayFor(model => model.Desc)
+                            </p>
                         </div>
                     </div>
                 </div>
