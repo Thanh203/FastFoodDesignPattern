@@ -20,10 +20,11 @@ namespace FastFoodSystem.WebApp.Models.Data
         [Display(Name = "Ngày kết thúc")]
         public DateTime EndDate { get; set; }
 
-        [Required]
+        
         [Display(Name = "Đơn vị")]
         public string State { get; set; }
 
+        [Required]
         [Display(Name = "Giảm")]
         public double Price { get; set; }
 

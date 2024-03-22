@@ -164,7 +164,6 @@ namespace FastFoodSystem.WebApp.Controllers
                  .WithPrice(voucher.Price)
                  .WithStartDate(voucher.StartDate)
                  .WithEndDate(voucher.EndDate)
-                 .WithState(voucher.State)
                  .Build();
 
                 await _voucherRepository.AddAsync(newVoucher);

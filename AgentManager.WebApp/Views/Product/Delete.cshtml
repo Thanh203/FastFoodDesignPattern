@@ -29,28 +29,36 @@
                                 <div style="text-align: right;">
                                     <span class="text-uppercase text-muted brand " style="float: left;">
                                         <b>@Html.DisplayNameFor(model => model.FFSProductId): &nbsp;</b>
-                                        @Html.DisplayFor(model => model.FFSProductId)
+                                        <a>
+                                            @Html.DisplayFor(model => model.FFSProductId)
+                                        </a>
                                     </span>
                                     <span class="text-uppercase text-muted brand " style="padding-top: 20px;">
                                         <b>@Html.DisplayNameFor(model => model.FFSProductCategoryId): &nbsp;</b>
-                                        @Html.DisplayFor(model => model.FFSProductCategoryId)
+                                        <a>
+                                            @Html.DisplayFor(model => model.FFSProductCategoryId)
+                                        </a>
                                     </span>
                                 </div>
 
                                 <h6 class="text-uppercase" style="padding-top: 20px;">
                                     <b>@Html.DisplayNameFor(model => model.Name): &nbsp;</b>
-                                    @Html.DisplayFor(model => model.Name)
+                                    <a>
+                                        @Html.DisplayFor(model => model.Name)
+                                    </a>
                                 </h6>
                                 <div class="price d-flex flex-row align-items-center" style="padding-top: 20px;">
                                     <span class="act-price">
                                         <b>@Html.DisplayNameFor(model => model.Price): &nbsp;</b>
-                                        @Html.DisplayFor(model => model.Price) VND
+                                        <a>
+                                            @Html.DisplayFor(model => model.Price) VND
+                                        </a>
                                     </span>
                                 </div>
                             </div>
                             <p class="about" style="padding-top: 20px;">
                                 <b>@Html.DisplayNameFor(model => model.Desc): &nbsp;</b>
-                                @Html.DisplayFor(model => model.Desc)
+                                <a>@Html.DisplayFor(model => model.Desc)</a>
                             </p>
                         </div>
                     </div>
