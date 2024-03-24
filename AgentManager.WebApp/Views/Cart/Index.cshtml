@@ -87,6 +87,7 @@
                             <span class="lead fw-normal">
                                 @string.Format("{0:#,##0}", ViewBag.Bill) VND
                             </span>
+                            <input type="hidden" id="billAmount" name="billAmount" value="@ViewBag.Bill" />
                         </p>
                         <span class="small text-muted me-2">Số tiền được giảm:</span>
                         <span class="lead fw-normal text-success">
@@ -101,18 +102,59 @@
                 <form method="post" asp-controller="Cart" asp-action="Index">
                     <input type="text" id="promoCodeCheckout" name="promoCode" class="form-control" placeholder="Mã khuyến mãi" value=0>
                     <input type="hidden" name="state" value="@ViewBag.State" />
-                    <button type="submit" class="btn btn-primary btn-lg m-2">Thanh toán</button>
+                    <div class="d-flex justify-content-end" style="width:100%; margin:20px; text-align:end;">
+                        <button type="button" class="btn btn-primary btn-lg m-2" data-toggle="modal" data-target="#paymentModal">Thanh toán</button>
+                    </div>
+                    <div class="modal fade" id="paymentModal" tabindex="-1" role="dialog" aria-labelledby="paymentModalLabel" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="paymentModalLabel">Chọn phương thức thanh toán</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <button type="button" class="btn btn-primary btn-lg btn-block mb-2" onclick="selectPayment('MoMo')">MoMo</button>
+                                    <button type="button" class="btn btn-primary btn-lg btn-block mb-2" onclick="selectPayment('PayPal')">PayPal</button>
+                                    <form method="post" asp-controller="Cart" asp-action="Index">
+                                        <button type="submit" class="btn btn-primary btn-lg btn-block" onclick="selectPayment('Cash')">Tiền mặt</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </form>
             </div>
-
         </div>
     </div>
 </section>
+
+
 <script>
-    // Lắng nghe sự kiện thay đổi giá trị ở ô nhập mã khuyến mãi "promoCodeApply"
     document.getElementById("promoCodeApply").addEventListener("input", function () {
-        // Cập nhật giá trị ở ô nhập mã khuyến mãi "promoCodeCheckout"
         document.getElementById("promoCodeCheckout").value = this.value;
     });
 </script>
 
+<script>
+    function selectPayment(paymentMethod) {
+
+        console.log("Phương thức thanh toán được chọn:", paymentMethod);
+
+        switch (paymentMethod) {
+            case 'MoMo':
+                window.location.href = '/ShoppingCart/PaymentWithMoMo';
+                break;
+            case 'PayPal':
+                var billAmount = document.getElementById("billAmount").value;
+                window.location.href = '/ShoppingCart/PaymentWithPaypal?billAmount=' + billAmount;
+                break;
+            case 'Cash':
+                break;
+            default:
+                break;
+        }
+        $('#paymentModal').modal('hide');
+    }
+</script>
