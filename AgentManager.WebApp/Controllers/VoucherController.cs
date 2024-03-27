@@ -12,9 +12,9 @@ namespace FastFoodSystem.WebApp.Controllers
     [Authorize (Roles = "Admin,Manager")]
     public class VoucherController : Controller
     {
-        private readonly IVoucherRepository _voucherRepository;
+        private readonly IRepository<FFSVoucher> _voucherRepository;
 
-        public VoucherController(IVoucherRepository voucherRepository)
+        public VoucherController(IRepository<FFSVoucher> voucherRepository)
         {
             _voucherRepository = voucherRepository;
         }
