@@ -18,9 +18,9 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<FastFoodSystemDbContext>(x => x.UseSqlServer(builder.Configuration.GetConnectionString("AgentManagerDbContext")));
 builder.Services.AddRazorPages();
 
-builder.Services.AddScoped<IVoucherRepository, FFSVoucherRepository>();
-builder.Services.AddScoped<IProductRepository, ProductRepository>();
-builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<IRepository<FFSVoucher>, VoucherRepository>();
+builder.Services.AddScoped<IRepository<FFSProduct>, ProductRepository>();
+builder.Services.AddScoped<IRepository<FFSProductCategory>, CategoryRepository>();
 
 
 
