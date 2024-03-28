@@ -1,19 +1,10 @@
 ﻿using FastFoodSystem.WebApp.Models;
 using FastFoodSystem.WebApp.Models.Data;
 using FastFoodSystem.WebApp.Models.ViewModel;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Metadata;
-using System.Threading.Tasks;
 using Newtonsoft.Json;
-using System.Runtime.InteropServices;
 using NuGet.Protocol;
-using Microsoft.AspNetCore.Authorization;
-using iTextSharp.text.pdf;
 
 namespace AgentManager.WebApp.Controllers
 {
