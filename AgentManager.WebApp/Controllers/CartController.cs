@@ -52,18 +52,7 @@ namespace FastFoodSystem.WebApp.Controllers
 
                 foreach (var cartItem in cartItems)
                 {
-                    CartItem item = _cartItemFactory.CreateCartItem(cartItem.FFSProductId, cartItem.Quantity);
-                    bill += item.total;
-                    sanPhamVMs.Add(item);
-                    //Old cartItem
-                    CartItem sanPhamVM = new CartItem()
-                    {
-                        FFSProductId = cartItem.FFSProductId,
-                        tenSanPham = dBHelper.GetProductByID(cartItem.FFSProductId).Name,
-                        anh = dBHelper.GetProductByID(cartItem.FFSProductId).Image,
-                        gia = dBHelper.GetProductByID(cartItem.FFSProductId).Price,
-                        Quantity = cartItem.Quantity,
-                    };
+                    CartItem sanPhamVM = _cartItemFactory.CreateCartItem(cartItem.FFSProductId, cartItem.Quantity);
                     bill += sanPhamVM.total;
                     sanPhamVMs.Add(sanPhamVM);
                 }
