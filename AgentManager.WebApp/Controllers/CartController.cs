@@ -169,7 +169,6 @@ namespace FastFoodSystem.WebApp.Controllers
             _context.SaveChanges();
             Console.WriteLine("Add Success");
 
-            HttpContext.Session.Clear();
             return RedirectToAction("Bill", "Cart", new { id = newOrderId, tipAmount = tipAmount });
         }
 
@@ -229,6 +228,9 @@ namespace FastFoodSystem.WebApp.Controllers
             Console.WriteLine(lst.ToJson());
             ViewBag.Bill = bill;
             ViewBag.TipAmount = tipAmount;
+
+            HttpContext.Session.Clear();
+
             return View(lst);
         }
 
