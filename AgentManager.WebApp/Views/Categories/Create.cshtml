@@ -9,12 +9,18 @@
 @model FastFoodSystem.WebApp.Models.Data.FFSProductCategory;
 
 <form asp-action="Create" class="content">
-    <div class="row">
-        <div class="col">
-            <div class="card card-secondary">
-                <div class="card-header">
-                    <h3 class="card-title">Thêm loại sản phẩm</h3>
-                </div>
+    <div class="card card-secondary">
+        @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
+        {
+            <div class="alert alert-danger" role="alert">
+                @ViewBag.ErrorMessage
+            </div>
+        }
+        <div class="card-header">
+            <h3 class="card-title">Thêm danh mục sản phẩm</h3>
+        </div>
+        <div class="row">
+            <div class="col">
                 <div class="card-body">
                     @Html.ValidationSummary(false, "", new { @class = "text-danger" })
                     <div class="form-group">
@@ -22,6 +28,11 @@
                         <input asp-for="FFSProductCategoryId" type="text" class="form-control" />
                         <span asp-validation-for="FFSProductCategoryId" class="text-danger small"></span>
                     </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card-body">
+                    @Html.ValidationSummary(false, "", new { @class = "text-danger" })
                     <div class="form-group">
                         <label>Tên sản phẩm: </label>
                         <input asp-for="Name" type="text" class="form-control" />

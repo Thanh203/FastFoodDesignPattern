@@ -1,37 +1,60 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@model FastFoodSystem.WebApp.Models.ViewModel.SanPhamVM
+﻿
+@model FastFoodSystem.WebApp.Models.Data.FFSProduct
 @{
     Layout = "~/Views/Shared/_mLayout.cshtml";
+
 }
 
-<section class="content">
-    <div class="card card-info">
-        <div class="card-header">
-            <h3 class="card-title">Xóa sản phẩm</h3>
-            <div class="card-tools">
-            </div>
+<div class="container mt-3 mb-5">
+    @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
+    {
+        <div class="alert alert-danger" role="alert">
+            @ViewBag.ErrorMessage
         </div>
-        <div class="card-body">
-            <div class="form-group">
-                <label>Mã sản phẩm: </label>
-                <input asp-for="maSanPham" class="form-control" readonly />
-            </div>
-            <div class="form-group">
-                <label>Tên sản phẩm: </label>
-                <input asp-for="tenSanPham" class="form-control" readonly />
-            </div>
-            <div class="form-group">
-                <label class="col-md-12">Ảnh: </label>
-                <img src="@Model.anh" class="img-fluid"
-                     style="height:280px; width: 350px;object-fit: cover;">
-                <input asp-for="anh" class="form-control" readonly />
-            </div>
+    }
+    <div class="row d-flex justify-content-center">
+        <div class="col-md-10">
+            <div class="card">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="images p-3">
+                            <div class="text-center p-4">
+                                <img id="main-image" src="@Html.DisplayFor(model => model.Image)" width="350" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="product p-4">
+                            <div class="mt-4 mb-3">
+                                <div style="text-align: right;">
+                                    <span class="text-uppercase text-muted brand " style="float: left;">
+                                        <b>@Html.DisplayNameFor(model => model.FFSProductId): &nbsp;</b>
+                                        @Html.DisplayFor(model => model.FFSProductId)
+                                    </span>
+                                    <span class="text-uppercase text-muted brand " style="padding-top: 20px;">
+                                        <b>@Html.DisplayNameFor(model => model.FFSProductCategoryId): &nbsp;</b>
+                                        @Html.DisplayFor(model => model.FFSProductCategoryId)
+                                    </span>
+                                </div>
 
-            <div class="form-group">
-                <label>Giá: </label>
-                <input asp-for="gia" class="form-control" readonly />
+                                <h6 class="text-uppercase" style="padding-top: 20px;">
+                                    <b>@Html.DisplayNameFor(model => model.Name): &nbsp;</b>
+                                    @Html.DisplayFor(model => model.Name)
+                                </h6>
+                                <div class="price d-flex flex-row align-items-center" style="padding-top: 20px;">
+                                    <span class="act-price">
+                                        <b>@Html.DisplayNameFor(model => model.Price): &nbsp;</b>
+                                        @Html.DisplayFor(model => model.Price) VND
+                                    </span>
+                                </div>
+                            </div>
+                            <p class="about" style="padding-top: 20px;">
+                                <b>@Html.DisplayNameFor(model => model.Desc): &nbsp;</b>
+                                @Html.DisplayFor(model => model.Desc)
+                            </p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -39,10 +62,11 @@
         <div class="text-center mt-5 mb-3">
             <form asp-action="Delete">
                 <a asp-action="Index" class="btn btn-sm btn-secondary float-left">Quay lại</a>
-                
+                <input type="hidden" asp-for="FFSProductId" />
                 <input type="submit" value="Xóa" class="btn btn-sm btn-danger float-right" />
             </form>
         </div>
     </div>
-</section>
+</div>
+    
 

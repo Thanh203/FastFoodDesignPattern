@@ -12,6 +12,7 @@ using iTextSharp.text;
 using System.Text;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using FastFoodSystem.WebApp.Models.ViewModel.TypeTips;
 
 namespace FastFoodSystem.WebApp.Controllers
 {
@@ -22,6 +23,8 @@ namespace FastFoodSystem.WebApp.Controllers
         private readonly FastFoodSystemDbContext _context;
         private readonly UserManager<Staff> _userManager;
         private readonly ICartItemFactory _cartItemFactory;
+        private PercentTips percentTips;
+
         DBHelper dBHelper;
         public CartController(FastFoodSystemDbContext db, FastFoodSystemDbContext context, UserManager<Staff> userManager, ICartItemFactory cartItemFactory)
         {
@@ -52,13 +55,24 @@ namespace FastFoodSystem.WebApp.Controllers
                     CartItem item = _cartItemFactory.CreateCartItem(cartItem.FFSProductId, cartItem.Quantity);
                     bill += item.total;
                     sanPhamVMs.Add(item);
+                    //Old cartItem
+                    CartItem sanPhamVM = new CartItem()
+                    {
+                        FFSProductId = cartItem.FFSProductId,
+                        tenSanPham = dBHelper.GetProductByID(cartItem.FFSProductId).Name,
+                        anh = dBHelper.GetProductByID(cartItem.FFSProductId).Image,
+                        gia = dBHelper.GetProductByID(cartItem.FFSProductId).Price,
+                        Quantity = cartItem.Quantity,
+                    };
+                    bill += sanPhamVM.total;
+                    sanPhamVMs.Add(sanPhamVM);
                 }
 
                 list = sanPhamVMs;
             }
         }
 
-        public IActionResult Index(decimal discountAmount)
+        public IActionResult Index(decimal discountAmount, decimal? tipAmount)
         {
             RetrieveCartitem(out List<CartItem> sanPhamVMs, out decimal bill);
             bool state = false;
@@ -66,6 +80,8 @@ namespace FastFoodSystem.WebApp.Controllers
             ViewBag.Bill = bill;
             ViewBag.State = state;
             ViewBag.DiscountAmount = discountAmount;
+            decimal actualTipAmount = tipAmount ?? 0;
+            ViewBag.TipAmount = actualTipAmount;
 
             // Kiểm tra xem có thông báo lỗi không
             if (TempData.ContainsKey("ErrorMessage"))
@@ -76,19 +92,36 @@ namespace FastFoodSystem.WebApp.Controllers
             return View(sanPhamVMs);
         }
 
+        private decimal GetPromoCodeStrategy(decimal bill, FFSVoucher voucher)
+        {
+            if (voucher.State == "Phần trăm")
+            {
+                VoucherContextStrategy context = new VoucherContextStrategy(new PercentagePromoCodeStrategy());
+                return context.CalculateDiscount(bill, voucher);
+            }
+            else if (voucher.State == "VND")
+            {
+                VoucherContextStrategy context = new VoucherContextStrategy(new AmountPromoCodeStrategy());
+                return context.CalculateDiscount(bill, voucher);
+            }
+            return 0;
+        }
 
         [HttpPost]
-        public async Task<IActionResult> Index(string promoCode, decimal discountAmount)
+        public async Task<IActionResult> Index(string promoCode, decimal discountAmount, decimal tipAmount)
         {
             RetrieveCartitem(out List<CartItem> list, out decimal bill);
-            int newOrderId = 0;
             var latestOrder = _context.FFSOrders.OrderByDescending(o => o.FFSOrderId).FirstOrDefault();
+            FFSVoucher voucher = _context.FFSVouchers.FirstOrDefault(v => v.FFSVoucherId == promoCode);
+            int newOrderId = 0;
+            discountAmount = 0;
+            string errorMessage = null;
 
             if (latestOrder != null)
             {
-                // Nếu có hoá đơn, tăng giá trị ID lên 1 để tạo ID mới
                 newOrderId = latestOrder.FFSOrderId + 1;
             }
+
             // Tạo một hoá đơn mới với ID mới
             List<FFSProductOrder> productOrders = new List<FFSProductOrder>();
             foreach (var cartItem in list)
@@ -101,52 +134,54 @@ namespace FastFoodSystem.WebApp.Controllers
                 };
                 productOrders.Add(productOrder);
             }
-            FFSVoucher voucher = _context.FFSVouchers.FirstOrDefault(v => v.FFSVoucherId == promoCode);
 
-            if (voucher != null && IsValidPromoCode(voucher))
+            if (voucher != null)
             {
-                discountAmount = 0;
-                if (voucher.State == "Phần trăm")
+                if (!IsValidPromoCode(voucher))
                 {
-                    discountAmount = (bill * (decimal)(voucher.Price / 100));
-                    if (discountAmount < voucher.Num)
-                    {
-                        bill -= discountAmount;
-                    }
-                    else
-                    {
-                        discountAmount = voucher.Num;
-                        bill -= discountAmount;
-                    }
-                    
+                    errorMessage = "Mã khuyến mãi đã hết hạn sử dụng.";
                 }
-                else if (voucher.State == "VND")
+                else
                 {
-                    discountAmount = (decimal)voucher.Num;
-                    bill -= discountAmount;
+                    discountAmount = GetPromoCodeStrategy(bill, voucher);
+                    bill -= discountAmount;                   
                 }
+            }
+            else
+            {
+                errorMessage = "Mã khuyến mãi không tồn tại.";
+            }
 
+            if (string.IsNullOrEmpty(errorMessage))
+            {
+                
                 ViewBag.PromoCode = voucher.FFSVoucherId;
                 ViewBag.DiscountAmount = discountAmount;
-
             }
+            else
+            {
+                TempData["ErrorMessage"] = errorMessage;
+            }
+
+            bill += tipAmount;
+            Console.WriteLine(tipAmount);
             var newOrder = new FFSOrder
             {
                 //Attribute
                 Date = DateTime.Now,
+                StaffId = "069aef07-2023-40ed-8ba7-583506e1d277",
                 Cash = Convert.ToDouble(bill),
-                StaffId = await GetCurrentUserIdAsync(),
                 TableId = "Table456",
                 FFSVoucherId = voucher.FFSVoucherId,
                 FFSProductOrders = productOrders
             };
-            // Lưu hoá đơn mới vào cơ sở dữ liệu
+
             _context.FFSOrders.Add(newOrder);
             _context.SaveChanges();
             Console.WriteLine("Add Success");
 
             
-            return RedirectToAction("Bill", "Cart", new { id = newOrderId });
+            return RedirectToAction("Bill", "Cart", new { id = newOrderId, tipAmount = tipAmount });
         }
 
         [HttpPost]
@@ -163,6 +198,11 @@ namespace FastFoodSystem.WebApp.Controllers
                 {
                     errorMessage = "Mã khuyến mãi đã hết hạn sử dụng.";
                 }
+                else
+                {
+                    discountAmount = GetPromoCodeStrategy(bill, voucher);
+                    bill -= discountAmount;
+                }
             }
             else
             {
@@ -171,25 +211,6 @@ namespace FastFoodSystem.WebApp.Controllers
 
             if (string.IsNullOrEmpty(errorMessage))
             {
-                if (voucher.State == "Phần trăm")
-                {
-                    discountAmount = (bill * (decimal)(voucher.Price / 100));
-                    if (discountAmount < voucher.Num)
-                    {
-                        bill -= discountAmount;
-                    }
-                    else
-                    {
-                        discountAmount = voucher.Num;
-                        bill -= discountAmount;
-                    }
-                }
-                else if (voucher.State == "VND")
-                {
-                    discountAmount = (decimal)voucher.Num;
-                    bill -= discountAmount;
-                }
-
                 ViewBag.PromoCode = voucher.FFSVoucherId;
                 ViewBag.DiscountAmount = discountAmount;
             }
@@ -208,7 +229,7 @@ namespace FastFoodSystem.WebApp.Controllers
             return currentDate >= voucher.StartDate && currentDate <= voucher.EndDate;
         }
 
-        public IActionResult Bill(int id)
+        public IActionResult Bill(int id, decimal tipAmount)
         {
             RetrieveCartitem(out List<CartItem> lst, out decimal totalbill);
             var bill = _context.FFSOrders.FirstOrDefault(o => o.FFSOrderId == id);
@@ -218,7 +239,7 @@ namespace FastFoodSystem.WebApp.Controllers
             }
             Console.WriteLine(lst.ToJson());
             ViewBag.Bill = bill;
-            
+            ViewBag.TipAmount = tipAmount;
             return View(lst);
         }
 
@@ -244,7 +265,6 @@ namespace FastFoodSystem.WebApp.Controllers
                     staffInfoHtml.Append($"<tr><td>{cart.tenSanPham}</td><td>{cart.Quantity}</td><td>{cart.gia}</td><td>{cart.total}</td></tr>");
                 }
 
-                // Thay thế {{StaffInfo}} bằng nội dung đã xây dựng
                 htmlTemplate = htmlTemplate.Replace("{{StaffInfo}}", staffInfoHtml.ToString())
                                             .Replace("{{IdBill}}", id.ToString())
                                             .Replace("{{IdStaff}}", bill.StaffId)
@@ -295,6 +315,26 @@ namespace FastFoodSystem.WebApp.Controllers
             }
 
             return RedirectToAction("Index");
+        }
+        public ActionResult Tips()
+        {
+            RetrieveCartitem(out List<CartItem> sanPhamVMs, out decimal bill);
+            ViewBag.Bill = bill;
+            // Trả về kết quả tính toán tips
+            return View();
+        }
+        public ActionResult Calculate(decimal tipPercentage)
+        {
+            RetrieveCartitem(out List<CartItem> sanPhamVMs, out decimal bill);
+            ViewBag.Bill = bill;
+            // Tạo một instance của PercentTips với mức phần trăm được chọn
+            percentTips = PercentTips.GetInstance(tipPercentage);
+
+            // Tính toán tips sử dụng instance của PercentTips
+            decimal tipAmount = percentTips.CalculateTip(bill);
+
+            // Trả về kết quả tính toán tips
+            return RedirectToAction("Index", "Cart", new { tipAmount = tipAmount });
         }
 
     }

@@ -12,139 +12,176 @@ namespace FastFoodSystem.WebApp.Controllers
     [Authorize(Roles = "Admin,Manager,Staff")]
     public class ProductController : Controller
     {
-        private readonly FastFoodSystemDbContext _context;  
-        DBHelper dBHelper;
-        public ProductController(FastFoodSystemDbContext db, FastFoodSystemDbContext context)
+        private readonly IRepository<FFSProduct> _productRepository;
+        private readonly IRepository<FFSProductCategory> _categoryRepository;
+
+        public ProductController(IRepository<FFSProduct> productRepository, IRepository<FFSProductCategory> categoryRepository)
         {
-            _context = context;
-            dBHelper = new DBHelper(db);
+            _productRepository = productRepository;
+            _categoryRepository = categoryRepository;
         }
 
-        public ActionResult Index(string searchText = "")
+
+        public async Task<ActionResult> Index()
         {
-            ViewBag.SearchText = searchText;
-            ViewData["listProduct"] = dBHelper.GetProducts();
+            var product = await _productRepository.GetAllAsync(); 
 
-            if (!String.IsNullOrEmpty(searchText))
-            {
-                List<FFSProduct> productListSearch = _context.FFSProducts
-                    .Where(a => a.FFSProductId.Contains(searchText)).ToList();
-
-                List<FFSProduct> productListSearchByName = _context.FFSProducts
-                    .Where(a => a.Name.Contains(searchText)).ToList();
-
-                foreach(var item in productListSearchByName)
-                    productListSearch.Add(item);
-
-                ViewData["listProduct"] = productListSearch;
-            }
-
-            return View();
+            return View(product);
         }
 
-        public IActionResult Details(string id)
+
+        public async Task<IActionResult> Details(string id)
         {
-            SanPhamVM sanPhamVM = new SanPhamVM()
+            var product = await _productRepository.GetByIdAsync(id);
+
+            if (product == null) return NotFound();
+
+            FFSProduct sanPhamVM = new FFSProduct()
             {
-                maSanPham = id,
-                tenSanPham = dBHelper.GetProductByID(id).Name,
-                anh = dBHelper.GetProductByID(id).Image,
-                gia = dBHelper.GetProductByID(id).Price,
-                loaiSanPham = dBHelper.GetProductByID(id).FFSProductCategoryId,
-                mota = dBHelper.GetProductByID(id).Desc
+                FFSProductId = product.FFSProductId,
+                Name = product.Name,
+                Image = product.Image,
+                Price = product.Price,
+                FFSProductCategoryId = product.FFSProductCategoryId,
+                Desc = product.Desc
             };
-            if (sanPhamVM == null) return NotFound();
-            else return View(sanPhamVM);
-        }
 
-        [Authorize(Roles = "Admin,Manager")]
-        public IActionResult Create()
-        {
-            var categories = _context.FFSProductCategories.ToList();
-            ViewBag.Categories = new SelectList(categories, "FFSProductCategoryId", "Name");
-            return View();
-        }
-
-        [HttpPost]
-        [Authorize(Roles = "Admin,Manager")]
-        public IActionResult Create(SanPhamVM sanPhamVM)
-        {
-            if (ModelState.IsValid)
-            {
-                FFSProduct sanPham = new FFSProduct()
-                {
-                    Name = sanPhamVM.tenSanPham,
-                    Image = sanPhamVM.anh,
-                    Price = sanPhamVM.gia,
-                    Desc = sanPhamVM.mota,
-                    FFSProductId = sanPhamVM.maSanPham,
-                    FFSProductCategoryId = sanPhamVM.loaiSanPham
-                };
-                dBHelper.InsertProduct(sanPham);
-                return RedirectToAction("index");
-            }
-            return View(sanPhamVM);
-        }
-
-        [Authorize(Roles = "Admin,Manager")]
-        public IActionResult Delete(string id)
-        {
-            SanPhamVM sanPhamVM = new SanPhamVM()
-            {
-                maSanPham = id,
-                tenSanPham = dBHelper.GetProductByID(id).Name,
-                anh = dBHelper.GetProductByID(id).Image,
-                gia = dBHelper.GetProductByID(id).Price
-            };
             if (sanPhamVM == null)
+            {
                 return NotFound();
-            else return View(sanPhamVM);
+            }
+            else 
+            {
+                return View(sanPhamVM);
+            };
         }
+
+
+        [Authorize(Roles = "Admin,Manager")]
+        public async Task<IActionResult> Create()
+        {
+            var categories = await _categoryRepository.GetAllAsync();
+
+            ViewBag.Categories = new SelectList(categories, "FFSProductCategoryId", "Name");
+
+            return View();
+        }
+
+
         [HttpPost]
         [Authorize(Roles = "Admin,Manager")]
-        public IActionResult Delete(SanPhamVM sanPhamVM)
+        public async Task<IActionResult> Create(FFSProduct sanPhamVM)
         {
+            if (await _productRepository.GetByIdAsync(sanPhamVM.FFSProductId) != null)
+            {
+                var categories = await _categoryRepository.GetAllAsync();
+
+                ViewBag.Categories = new SelectList(categories, "FFSProductCategoryId", "Name");
+
+                ViewBag.ErrorMessage = "ID đã tồn tại";
+
+                return View();
+            }
+
             if (ModelState.IsValid)
             {
-                dBHelper.DeleteProduct(sanPhamVM.maSanPham);
+                FFSProduct sanPham = new FFSProduct()
+                {
+                    FFSProductId = sanPhamVM.FFSProductId,
+                    Name = sanPhamVM.Name,
+                    Image = sanPhamVM.Image,
+                    Price = sanPhamVM.Price,
+                    Desc = sanPhamVM.Desc,
+                    FFSProductCategoryId = sanPhamVM.FFSProductCategoryId
+                };
+                await _productRepository.AddAsync(sanPham);
                 return RedirectToAction("index");
             }
-            else Console.WriteLine("ERROR");
+
+            
+
             return View(sanPhamVM);
         }
 
+
         [Authorize(Roles = "Admin,Manager")]
-        public IActionResult Edit(string id)
+        public async Task<IActionResult> Delete(string id)
         {
-            SanPhamVM sanPhamVM = new SanPhamVM()
+            if (id == null)
             {
-                maSanPham = dBHelper.GetProductByID(id).FFSProductId,
-                tenSanPham = dBHelper.GetProductByID(id).Name,
-                anh = dBHelper.GetProductByID(id).Image,
-                gia = dBHelper.GetProductByID(id).Price,
-                mota = dBHelper.GetProductByID(id).Desc,
-                loaiSanPham = dBHelper.GetProductByID(id).FFSProductCategoryId,
+                return NotFound();
+            }
+
+            var sanPhamVM = await _productRepository.GetByIdAsync(id);
+
+            if (sanPhamVM == null)
+            {
+                return NotFound();
+            }
+            else 
+            {
+                return View(sanPhamVM);
             };
-            Console.WriteLine("Post Edit Product Clone:", sanPhamVM);
-            if (sanPhamVM == null) return NotFound();
-            else return View(sanPhamVM);
         }
+
+
         [HttpPost]
         [Authorize(Roles = "Admin,Manager")]
-        public IActionResult Edit(SanPhamVM sanPhamVM)
+        public async Task<IActionResult> Delete(FFSProduct sanPhamVM)
+        {
+            await _productRepository.DeleteAsync(sanPhamVM.FFSProductId);
+            return RedirectToAction("index");
+        }
+
+        [Authorize(Roles = "Admin,Manager")]
+        public async Task<IActionResult> Edit(string id)
+        {
+            var product = await _productRepository.GetByIdAsync(id);
+
+            if (product == null)
+            {
+                ViewBag.ErrorMessage = "Sản phẩm không tồn tại";
+                return View();
+            }
+
+            FFSProduct sanPhamVM = new FFSProduct()
+            {
+                FFSProductId = product.FFSProductId,
+                Name = product.Name,
+                Image = product.Image,
+                Price = product.Price,
+                Desc = product.Desc,
+                FFSProductCategoryId = product.FFSProductCategoryId,
+            };
+
+            if (sanPhamVM == null)
+            {
+                return NotFound();
+            }
+            else
+            {
+                return View(sanPhamVM);
+            } ;
+        }
+
+
+        [HttpPost]
+        [Authorize(Roles = "Admin,Manager")]
+        public async Task<IActionResult> Edit(FFSProduct sanPhamVM)
         {
             if (ModelState.IsValid)
             {
                 FFSProduct sanPham = new FFSProduct()
                 {
-                    Name = sanPhamVM.tenSanPham,
-                    Image = sanPhamVM.anh,
-                    Price = sanPhamVM.gia,
-                    Desc = sanPhamVM.mota,
-                    FFSProductId = sanPhamVM.maSanPham,
-                    FFSProductCategoryId = sanPhamVM.loaiSanPham
+                    Name = sanPhamVM.Name,
+                    Image = sanPhamVM.Image,
+                    Price = sanPhamVM.Price,
+                    Desc = sanPhamVM.Desc,
+                    FFSProductId = sanPhamVM.FFSProductId,
+                    FFSProductCategoryId = sanPhamVM.FFSProductCategoryId
                 };
-                dBHelper.EditProduct(sanPham);
+
+                await _productRepository.UpdateAsync(sanPham, sanPhamVM.FFSProductId);
                 return RedirectToAction("index");
             }
             return View(sanPhamVM);
