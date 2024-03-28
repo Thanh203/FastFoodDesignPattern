@@ -169,7 +169,7 @@ namespace FastFoodSystem.WebApp.Controllers
             _context.SaveChanges();
             Console.WriteLine("Add Success");
 
-            
+            HttpContext.Session.Clear();
             return RedirectToAction("Bill", "Cart", new { id = newOrderId, tipAmount = tipAmount });
         }
 
