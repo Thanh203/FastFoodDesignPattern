@@ -207,6 +207,7 @@ namespace FastFoodSystem.WebApp.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Date = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Cash = table.Column<double>(type: "float", nullable: false),
+                    State = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     StaffId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     TableId = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     FFSVoucherId = table.Column<string>(type: "nvarchar(450)", nullable: false)
@@ -320,8 +321,8 @@ namespace FastFoodSystem.WebApp.Migrations
                     FFSIngredientId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     FFSDeliveryRecievedNoteId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false),
-                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {

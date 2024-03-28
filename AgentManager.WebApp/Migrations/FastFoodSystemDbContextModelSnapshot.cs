@@ -120,6 +120,10 @@ namespace FastFoodSystem.WebApp.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("State")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("TableId")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");

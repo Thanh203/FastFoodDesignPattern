@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FastFoodSystem.WebApp.Controllers
 {
-    [Authorize(Roles = "Admin,Manager,Staff")]
+    //[Authorize(Roles = "Admin,Manager,Staff")]
     public class ProductController : Controller
     {
         private readonly IProductRepository _productRepository;
@@ -20,7 +20,6 @@ namespace FastFoodSystem.WebApp.Controllers
             _productRepository = productRepository;
             _categoryRepository = categoryRepository;
         }
-
 
         public async Task<ActionResult> Index()
         {

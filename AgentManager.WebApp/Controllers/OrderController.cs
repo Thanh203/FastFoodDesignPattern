@@ -14,6 +14,7 @@ using System.Runtime.InteropServices;
 using NuGet.Protocol;
 using Microsoft.AspNetCore.Authorization;
 using iTextSharp.text.pdf;
+using FastFoodSystem.WebApp.Models.Order;
 
 namespace AgentManager.WebApp.Controllers
 {
@@ -24,6 +25,7 @@ namespace AgentManager.WebApp.Controllers
         private readonly ILogger<OrderController> logger;
         private readonly IHttpContextAccessor _contx;
         private readonly FastFoodSystemDbContext _context;
+        
         //
         public int SelectedCategoryId { get; set; }
         DBHelper dBHelper;
@@ -60,6 +62,10 @@ namespace AgentManager.WebApp.Controllers
         [HttpPost]
         public IActionResult Index([FromBody] CartItem data)
         {
+            if (!String.IsNullOrEmpty(_contx.HttpContext.Session.GetString("IdCurrentOrder")))
+            {
+                return BadRequest("Hãy hoàn thành đơn hàng hiện tại hoặc hủy nó");
+            }
             try
             {
                 string cartItemsString = _contx.HttpContext.Session.GetString("CartItems");
@@ -149,23 +155,9 @@ namespace AgentManager.WebApp.Controllers
             {
                 return Problem("Entity set 'FastFoodSystemDbContext.FFSOrders'  is null.");
             }
-            var fFSOrder = await _context.FFSOrders.FindAsync(id);
-            if (fFSOrder != null)
-            {
-                List<FFSProductOrder> products = _context.FFSProductOrders
-                .Where(item => item.FFSOrderId == id)
-                .OrderBy(item => item.FFSOrderId)
-                .ToList();
+            OrderProcessor orderProcessor = new OrderProcessor(id, _context);
+            orderProcessor.DeleteOrder();
 
-                List<CartItem> _products = new List<CartItem> { };
-                foreach (var product in products)
-                {
-                    _context.FFSProductOrders.Remove(product);
-                }
-                _context.FFSOrders.Remove(fFSOrder);
-            }
-
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(ListOrder));
         }
         public IActionResult Details(int id)
@@ -221,29 +213,10 @@ namespace AgentManager.WebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateComfirm(int id, FFSOrder updatedOrder, List<FFSProductOrder> products)
         {
-            List<FFSProductOrder> _products = _context.FFSProductOrders
-            .Where(item => item.FFSOrderId == id)
-            .OrderBy(item => item.FFSOrderId)
-            .ToList();
-            // Update quantities in the database
-            double updatedCash = 0;
-            foreach (var product in products)
-            {
-                var existingProduct = _products.FirstOrDefault(item => item.FFSProductId == product.FFSProductId);
-                int pricePr = _context.FFSProducts.FirstOrDefault(item => item.FFSProductId == existingProduct.FFSProductId).Price;
-                //Console.WriteLine(existingProduct.ToJson());
-                if (existingProduct != null)
-                {
-                    existingProduct.Quantity = product.Quantity;
-                    _context.Entry(existingProduct).State = EntityState.Modified;
-                    updatedCash += existingProduct.Quantity * pricePr;
-                }
-            }
-            Console.WriteLine(updatedCash);
-            var order = _context.FFSOrders.FirstOrDefault(item => item.FFSOrderId == id);
-            order.Cash = updatedCash;
 
-            await _context.SaveChangesAsync();
+            OrderProcessor orderProcessor = new OrderProcessor(id, _context);
+            orderProcessor.EditOrder(updatedOrder, products);
+
             ViewBag.Products = products;
             return RedirectToAction(nameof(ListOrder));
         }

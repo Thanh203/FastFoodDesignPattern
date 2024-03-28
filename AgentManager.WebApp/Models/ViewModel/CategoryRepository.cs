@@ -1,5 +1,6 @@
 ﻿using FastFoodSystem.WebApp.Models.Data;
 using Microsoft.EntityFrameworkCore;
+using System.Collections;
 
 namespace FastFoodSystem.WebApp.Models.ViewModel
 {

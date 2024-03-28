@@ -10,7 +10,7 @@ using System.ComponentModel;
 
 namespace FastFoodSystem.WebApp.Controllers
 {
-    [Authorize(Roles = "Admin,Manager")]
+    //[Authorize(Roles = "Admin,Manager")]
     public class AccountController : Controller
     {
         private readonly UserManager<Staff>? _userManager;

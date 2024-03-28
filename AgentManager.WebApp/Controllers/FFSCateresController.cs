@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace FastFoodSystem.WebApp.Controllers
 {
-    [Authorize (Roles = "Admin,Manager,Staff")]
+    //[Authorize (Roles = "Admin,Manager,Staff")]
     public class FFSCateresController : Controller
     {
         private readonly FastFoodSystemDbContext _context;

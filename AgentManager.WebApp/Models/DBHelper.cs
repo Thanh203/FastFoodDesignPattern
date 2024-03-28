@@ -1,9 +1,10 @@
 ﻿using FastFoodSystem.WebApp.Controllers;
 using FastFoodSystem.WebApp.Models.Data;
+using FastFoodSystem.WebApp.Models.ProxyPattern;
 
 namespace FastFoodSystem.WebApp.Models
 {
-    public class DBHelper
+    public class DBHelper : IService
     {
         FastFoodSystemDbContext dbContext;
         public DBHelper(FastFoodSystemDbContext dbContext)
@@ -84,22 +85,25 @@ namespace FastFoodSystem.WebApp.Models
             return dbContext.Positions.First(x => x.PositionId == id);
         }
         
-        public void InsertPositions(Position position)
+        public bool InsertPositions(Position position)
         {
             dbContext.Positions.Add(position);
             dbContext.SaveChanges();
+            return true;
         }
-        public void EditPositions(Position position)
+        public bool EditPositions(Position position)
         {
             dbContext.Positions.Update(position);
             dbContext.SaveChanges();
+            return true;
         }
 
-        internal void DeletePositions(int id)
+        public bool DeletePositions(int id)
         {
             Position position = GetPositionByID(id);
             dbContext.Positions.Remove(position);
             dbContext.SaveChanges();
+            return true;
         }
 
         //Voucher
@@ -132,6 +136,5 @@ namespace FastFoodSystem.WebApp.Models
             dbContext.FFSVouchers.Remove(voucher);
             dbContext.SaveChanges();
         }
-
     }
 }

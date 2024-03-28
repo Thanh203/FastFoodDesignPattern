@@ -4,21 +4,22 @@ using Microsoft.AspNetCore.Mvc;
 using FastFoodSystem.WebApp.Models.ViewModel;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
+using FastFoodSystem.WebApp.Models.ProxyPattern;
+using Microsoft.AspNetCore.Identity;
 
 namespace FastFoodSystem.WebApp.Controllers
 {
-    [Authorize (Roles = "Admin,Manager")]
     public class PositionController : Controller
     {
-        DBHelper dBHelper;
-        public PositionController(FastFoodSystemDbContext db)
+        IService service;
+        public PositionController(FastFoodSystemDbContext db, IHttpContextAccessor contextAccessor)
         {
-            dBHelper = new DBHelper(db);
+            service = new Proxy(db, contextAccessor);
         }
 
         public IActionResult Index()
         {
-            ViewData["listPositions"] = dBHelper.GetPositions();
+            ViewData["listPositions"] = service.GetPositions();
             return View();
         }
         public IActionResult Create()
@@ -36,7 +37,7 @@ namespace FastFoodSystem.WebApp.Controllers
                     PositionName = positionVM.tenChucVu,
                     
                 };
-                dBHelper.InsertPositions(position);
+                service.InsertPositions(position);
                 return RedirectToAction("index");
             }
             return View(positionVM);
@@ -47,7 +48,7 @@ namespace FastFoodSystem.WebApp.Controllers
             PositionVM positionVM = new PositionVM()
             {
                 maChucVu = id,
-                tenChucVu = dBHelper.GetPositionByID(id).PositionName,
+                tenChucVu = service.GetPositionByID(id).PositionName,
             };
             if (positionVM == null)
                 return NotFound();
@@ -59,9 +60,9 @@ namespace FastFoodSystem.WebApp.Controllers
             
             if (ModelState.IsValid)
             {
-                if (dBHelper.GetStaffByIdPosition(positionVM.maChucVu) == null)
+                if (service.GetStaffByIdPosition(positionVM.maChucVu) == null)
                 {
-                    dBHelper.DeletePositions(positionVM.maChucVu);
+                    service.DeletePositions(positionVM.maChucVu);
                     return RedirectToAction("index");
                 }
                 else Console.WriteLine("ERROR");
@@ -73,10 +74,11 @@ namespace FastFoodSystem.WebApp.Controllers
         
         public IActionResult Edit(int id)
         {
+            Position position = service.GetPositionByID(id);
             PositionVM positionVM = new PositionVM()
             {
-                maChucVu = dBHelper.GetPositionByID(id).PositionId,
-                tenChucVu = dBHelper.GetPositionByID(id).PositionName,
+                maChucVu = position.PositionId,
+                tenChucVu = position.PositionName,
             };
             Console.WriteLine("Post Edit Positon Clone:", positionVM);
             if (positionVM == null) return NotFound();
@@ -88,7 +90,7 @@ namespace FastFoodSystem.WebApp.Controllers
             if (ModelState.IsValid)
             {
                 // Truy xuất đối tượng Position cần chỉnh sửa từ cơ sở dữ liệu
-                Position position = dBHelper.GetPositionByID(positionVM.maChucVu);
+                Position position = service.GetPositionByID(positionVM.maChucVu);
 
                 if (position != null)
                 {
@@ -96,7 +98,7 @@ namespace FastFoodSystem.WebApp.Controllers
                     position.PositionName = positionVM.tenChucVu;
 
                     // Cập nhật thông tin vào cơ sở dữ liệu
-                    dBHelper.EditPositions(position);
+                    service.EditPositions(position);
 
                     return RedirectToAction("index");
                 }
