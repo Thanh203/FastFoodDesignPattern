@@ -15,14 +15,16 @@ namespace AgentManager.WebApp.Controllers
         private readonly ILogger<OrderController> logger;
         private readonly IHttpContextAccessor _contx;
         private readonly FastFoodSystemDbContext _context;
+        private readonly ICartItemFactory _cartItemFactory;
         //
         public int SelectedCategoryId { get; set; }
         DBHelper dBHelper;
-        public OrderController(ILogger<OrderController> logger, IHttpContextAccessor contx, FastFoodSystemDbContext context)
+        public OrderController(ILogger<OrderController> logger, IHttpContextAccessor contx, FastFoodSystemDbContext context, ICartItemFactory cartItemFactory)
         {
             this.logger = logger;
             _contx = contx;
             _context = context;
+            _cartItemFactory = cartItemFactory;
         }
 
         // GET: OrderController
@@ -72,7 +74,7 @@ namespace AgentManager.WebApp.Controllers
                 else
                 {
                     // Thêm sản phẩm mới vào giỏ hàng
-                    var product = new CartItem { FFSProductId = productId, Quantity = quantity };
+                    var product = _cartItemFactory.CreateCartItem(productId, quantity);
                     cartItems.Add(product);
                 }
 
@@ -118,13 +120,7 @@ namespace AgentManager.WebApp.Controllers
             foreach (var product in products)
             {
                 var obj = _context.FFSProducts.FirstOrDefault(item => item.FFSProductId == product.FFSProductId);
-                CartItem _product = new CartItem()
-                {
-                    FFSProductId = obj.FFSProductId,
-                    tenSanPham = obj.Name,
-                    gia = obj.Price,
-                    Quantity = product.Quantity,
-                };
+                CartItem _product = _cartItemFactory.CreateCartItem(obj.FFSProductId, product.Quantity);
                 _products.Add(_product);
             }
 
@@ -171,13 +167,8 @@ namespace AgentManager.WebApp.Controllers
             foreach (var product in products)
             {
                 var obj = _context.FFSProducts.FirstOrDefault(item => item.FFSProductId == product.FFSProductId);
-                CartItem _product = new CartItem()
-                {
-                    FFSProductId = obj.FFSProductId,
-                    tenSanPham = obj.Name,
-                    gia = obj.Price,
-                    Quantity = product.Quantity,
-                };
+                CartItem _product = _cartItemFactory.CreateCartItem(obj.FFSProductId, product.Quantity);
+
                 _products.Add(_product);
             }
             
@@ -196,13 +187,8 @@ namespace AgentManager.WebApp.Controllers
             foreach (var product in products)
             {
                 var obj = _context.FFSProducts.FirstOrDefault(item => item.FFSProductId == product.FFSProductId);
-                CartItem _product = new CartItem()
-                {
-                    FFSProductId = obj.FFSProductId,
-                    tenSanPham = obj.Name,
-                    gia = obj.Price,
-                    Quantity = product.Quantity,
-                };
+                CartItem _product = _cartItemFactory.CreateCartItem(obj.FFSProductId, product.Quantity);
+
                 _products.Add(_product);
             }
 

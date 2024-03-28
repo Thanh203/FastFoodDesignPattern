@@ -22,15 +22,17 @@ namespace FastFoodSystem.WebApp.Controllers
         private readonly IHttpContextAccessor _contx;
         private readonly FastFoodSystemDbContext _context;
         private readonly UserManager<Staff> _userManager;
+        private readonly ICartItemFactory _cartItemFactory;
         private PercentTips percentTips;
 
         DBHelper dBHelper;
-        public CartController(FastFoodSystemDbContext db, FastFoodSystemDbContext context, UserManager<Staff> userManager)
+        public CartController(FastFoodSystemDbContext db, FastFoodSystemDbContext context, UserManager<Staff> userManager, ICartItemFactory cartItemFactory)
         {
             _contx = new HttpContextAccessor();
             dBHelper = new DBHelper(db);
             _context = context;
             _userManager = userManager;
+            _cartItemFactory = cartItemFactory;
         }
         public async Task<string> GetCurrentUserIdAsync()
         {
@@ -50,6 +52,9 @@ namespace FastFoodSystem.WebApp.Controllers
 
                 foreach (var cartItem in cartItems)
                 {
+                    CartItem item = _cartItemFactory.CreateCartItem(cartItem.FFSProductId, cartItem.Quantity);
+                    bill += item.total;
+                    sanPhamVMs.Add(item);
                     //Old cartItem
                     CartItem sanPhamVM = new CartItem()
                     {
