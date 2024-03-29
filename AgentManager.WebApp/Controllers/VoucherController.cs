@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FastFoodSystem.WebApp.Controllers
 {
-    [Authorize (Roles = "Admin,Manager")]
+    //[Authorize (Roles = "Admin,Manager")]
     public class VoucherController : Controller
     {
         private readonly IRepository<FFSVoucher> _voucherRepository;

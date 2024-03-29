@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
 
 namespace FastFoodSystem.WebApp.Models.Data
 {
@@ -22,6 +23,10 @@ namespace FastFoodSystem.WebApp.Models.Data
         public Position? Position { get; set; }
         public ICollection<FFSOrder>? Orders { get; set; }
         public ICollection<FFSDeliveryRecievedNote>? FFSDeliveryRecievedNotes { get; set; }
-        
+
+        public static explicit operator Staff(ClaimsPrincipal v)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

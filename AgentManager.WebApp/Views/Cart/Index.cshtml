@@ -1,4 +1,5 @@
-﻿@model List<FastFoodSystem.WebApp.Models.ViewModel.CartItem>
+﻿@using FastFoodSystem.WebApp.Models.Order;
+@model List<FastFoodSystem.WebApp.Models.ViewModel.CartItem>
 
 @{
     Layout = "~/Views/Shared/_mLayout.cshtml";
@@ -65,15 +66,18 @@
                                     </p>
                                 </div>
                             </div>
-                            <form method="post" asp-controller="Cart" asp-action="UpdateQuantity">
-                                <input type="hidden" name="FFSProductId" value="@sanPham.FFSProductId" />
-                                <input type="number" name="quantity" value="@sanPham.Quantity" />
-                                <button type="submit" class="btn btn-success btn-lg m-2">Cập nhập số lượng</button>
-                            </form>
-                            <form method="post" asp-controller="Cart" asp-action="RemoveFromCart">
-                                <input type="hidden" name="FFSProductId" value="@sanPham.FFSProductId" />
-                                <button type="submit" class="btn btn-sm btn-danger">Xóa</button>
-                            </form>
+                            @if (ViewBag.StateOrder != OrderState.isConfirmed)
+                            {
+                                <form method="post" asp-controller="Cart" asp-action="UpdateQuantity">
+                                    <input type="hidden" name="FFSProductId" value="@sanPham.FFSProductId" />
+                                    <input type="number" name="quantity" value="@sanPham.Quantity" />
+                                    <button type="submit" class="btn btn-success btn-lg m-2">Cập nhập số lượng</button>
+                                </form>
+                                <form method="post" asp-controller="Cart" asp-action="RemoveFromCart">
+                                    <input type="hidden" name="FFSProductId" value="@sanPham.FFSProductId" />
+                                    <button type="submit" class="btn btn-sm btn-danger">Xóa</button>
+                                </form>
+                            }
                         </div>
                     }
 
@@ -101,16 +105,30 @@
                     </div>
                 </div>
             </div>
-
-            <div class="d-flex justify-content-end" style="width:100%; margin:20px; text-align:end;">
-                <a href="@Url.Action("Tips", "Cart", new { bill = ViewBag.Bill }))" class="btn btn-primary btn-lg m-2">Chọn tips</a>
-                <form method="post" asp-controller="Cart" asp-action="Index">
-                    <input type="text" id="promoCodeCheckout" name="promoCode" class="form-control" placeholder="Mã khuyến mãi" value=0>
-                    <input type="hidden" name="state" value="@ViewBag.State" />
-                    <input type="hidden" name="tipAmount" value="@ViewBag.TipAmount" />
-                    <button type="submit" class="btn btn-primary btn-lg m-2">Thanh toán</button>
-                </form>
+            <div class="d-flex justify-content-end text-danger" style="width:100%; margin:20px; text-align:end;">
+                @ViewBag.ErrorMessage202
             </div>
+            @if (ViewBag.StateOrder == OrderState.isConfirmed)
+            {
+                <div class="d-flex justify-content-end" style="width:100%; margin:20px; text-align:end;">
+                    <a href="@Url.Action("Tips", "Cart", new { bill = ViewBag.Bill }))" class="btn btn-primary btn-lg m-2">Chọn tips</a>
+                    <form method="post" asp-controller="Cart" asp-action="Bill">
+                        <input type="text" id="promoCodeCheckout" name="promoCode" class="form-control" placeholder="Mã khuyến mãi" value=0>
+                        <input type="hidden" name="state" value="@ViewBag.State" />
+                       <input type="hidden" name="tipAmount" value="@ViewBag.TipAmount" />
+                        <button type="submit" class="btn btn-primary btn-lg m-2">Thanh toán</button>
+                    </form>
+                </div>
+            }else
+            {
+                <div class="d-flex justify-content-end" style="width:100%; margin:20px; text-align:end;">
+                    <form method="post" asp-controller="Cart" asp-action="Index">
+                        <input type="text" id="promoCodeCheckout" name="promoCode" class="form-control" placeholder="Mã khuyến mãi" value=0>
+                        <input type="hidden" name="state" value="@ViewBag.State" />
+                        <button type="submit" class="btn btn-primary btn-lg m-2">Xác nhận</button>
+                    </form>
+                </div>
+            }
         </div>
     </div>
 </section>

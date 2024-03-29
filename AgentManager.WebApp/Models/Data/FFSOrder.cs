@@ -16,6 +16,9 @@ namespace FastFoodSystem.WebApp.Models.Data
         [Display (Name = "Tổng tiền")]
         public double Cash { get; set; }
 
+        [Display (Name = "Trạng thái")]
+        public string State {  get; set; } 
+
         [Required]
         [Display (Name = "Mã nhân viên")]
         public string StaffId { get; set; }
