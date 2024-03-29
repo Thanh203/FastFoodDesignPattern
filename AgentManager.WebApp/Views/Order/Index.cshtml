@@ -126,9 +126,9 @@
                     alert("Sản phẩm đã được thêm vào giỏ hàng!");
                     console.log("After post: " + data);
                 },
-                error: function () {
+                error: function (error) {
                     // Xử lý lỗi 
-                    alert("Có lỗi xảy ra khi thêm sản phẩm vào giỏ hàng.");
+                    alert(error.responseText);
                     console.log(err);
                 }
             });

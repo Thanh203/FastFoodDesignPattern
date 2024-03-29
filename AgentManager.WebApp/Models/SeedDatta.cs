@@ -1,5 +1,10 @@
 using FastFoodSystem.WebApp.Models.Data;
+using FastFoodSystem.WebApp.Models.ViewModel;
+using FluentAssertions.Common;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using System.Security;
 
 namespace FastFoodSystem.WebApp.Models
 {
@@ -51,7 +56,10 @@ namespace FastFoodSystem.WebApp.Models
                     }
                     context.SaveChanges();
                 }
-				if (!context.FFSProductCategories.Any())
+
+
+
+                if (!context.FFSProductCategories.Any())
 				{
 					context.AddRange(
 						new FFSProductCategory

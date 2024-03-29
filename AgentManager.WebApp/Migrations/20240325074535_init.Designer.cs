@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FastFoodSystem.WebApp.Migrations
 {
     [DbContext(typeof(FastFoodSystemDbContext))]
-    [Migration("20231101112944_init")]
+    [Migration("20240325074535_init")]
     partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -121,6 +121,10 @@ namespace FastFoodSystem.WebApp.Migrations
                     b.Property<string>("StaffId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("State")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("TableId")
                         .IsRequired()

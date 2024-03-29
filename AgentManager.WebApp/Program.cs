@@ -118,7 +118,6 @@ app.UseEndpoints(endpoints =>
         pattern: "pdf/export",
         defaults: new { controller = "YourController", action = "ExportToPdf" }
     );
-
     endpoints.MapControllerRoute(
         name: "default",
         pattern: "{controller=Home}/{action=Index}/{id?}"

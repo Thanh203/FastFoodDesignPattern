@@ -13,6 +13,9 @@ using System.Text;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using FastFoodSystem.WebApp.Models.ViewModel.TypeTips;
+using FastFoodSystem.WebApp.Models.Order;
+using System.Globalization;
+
 
 namespace FastFoodSystem.WebApp.Controllers
 {
@@ -71,29 +74,17 @@ namespace FastFoodSystem.WebApp.Controllers
             ViewBag.DiscountAmount = discountAmount;
             decimal actualTipAmount = tipAmount ?? 0;
             ViewBag.TipAmount = actualTipAmount;
-
-            // Kiểm tra xem có thông báo lỗi không
+            ViewBag.StateOrder = _contx.HttpContext.Session.GetString("StateOrder");
             if (TempData.ContainsKey("ErrorMessage"))
             {
                 ViewBag.ErrorMessage = TempData["ErrorMessage"];
             }
+            if (TempData.ContainsKey("ErrorMessage202"))
+            {
+                ViewBag.ErrorMessage202 = TempData["ErrorMessage202"];
+            }
 
             return View(sanPhamVMs);
-        }
-
-        private decimal GetPromoCodeStrategy(decimal bill, FFSVoucher voucher)
-        {
-            if (voucher.State == "Phần trăm")
-            {
-                VoucherContextStrategy context = new VoucherContextStrategy(new PercentagePromoCodeStrategy());
-                return context.CalculateDiscount(bill, voucher);
-            }
-            else if (voucher.State == "VND")
-            {
-                VoucherContextStrategy context = new VoucherContextStrategy(new AmountPromoCodeStrategy());
-                return context.CalculateDiscount(bill, voucher);
-            }
-            return 0;
         }
 
         [HttpPost]
@@ -119,7 +110,7 @@ namespace FastFoodSystem.WebApp.Controllers
                 {
                     FFSProductId = cartItem.FFSProductId,
                     Quantity = cartItem.Quantity,
-                    FFSOrderId = newOrderId
+                    FFSOrderId = newOrderId,
                 };
                 productOrders.Add(productOrder);
             }
@@ -162,14 +153,55 @@ namespace FastFoodSystem.WebApp.Controllers
                 Cash = Convert.ToDouble(bill),
                 TableId = "Table456",
                 FFSVoucherId = voucher.FFSVoucherId,
-                FFSProductOrders = productOrders
+                FFSProductOrders = productOrders,
+                State = OrderState.isUnconfirmed
             };
 
-            _context.FFSOrders.Add(newOrder);
-            _context.SaveChanges();
-            Console.WriteLine("Add Success");
+            OrderProcessor orderProcessor;
+            string id = _contx.HttpContext.Session.GetString("IdCurrentOrder");
+            if (String.IsNullOrEmpty(id))
+            {
+                _contx.HttpContext.Session.SetString("IdCurrentOrder", newOrderId.ToString());
+                _context.FFSOrders.Add(newOrder);
+                _context.SaveChanges();
+                orderProcessor = new OrderProcessor(newOrderId, _context);
+                Console.WriteLine("Add Success");
+            }
+            else
+            {
+                orderProcessor = new OrderProcessor(int.Parse(id), _context);
+                orderProcessor.EditOrder(newOrder, productOrders);
+            }
 
-            return RedirectToAction("Bill", "Cart", new { id = newOrderId, tipAmount = tipAmount });
+            if (orderProcessor.UpdateStateOrder())
+            {
+                _contx.HttpContext.Session.SetString("StateOrder", OrderState.isConfirmed); 
+            }
+            else
+            {
+                _contx.HttpContext.Session.SetString("StateOrder", OrderState.isUnconfirmed);
+                TempData["ErrorMessage202"] = "Xác thực đơn hàng thất bại";
+            }
+
+
+            return RedirectToAction("Index", "Cart", new { discountAmount = discountAmount });
+
+
+        }
+
+        private decimal GetPromoCodeStrategy(decimal bill, FFSVoucher voucher)
+        {
+            if (voucher.State == "Phần trăm")
+            {
+                VoucherContextStrategy context = new VoucherContextStrategy(new PercentagePromoCodeStrategy());
+                return context.CalculateDiscount(bill, voucher);
+            }
+            else if (voucher.State == "VND")
+            {
+                VoucherContextStrategy context = new VoucherContextStrategy(new AmountPromoCodeStrategy());
+                return context.CalculateDiscount(bill, voucher);
+            }
+            return 0;
         }
 
         [HttpPost]
@@ -217,8 +249,9 @@ namespace FastFoodSystem.WebApp.Controllers
             return currentDate >= voucher.StartDate && currentDate <= voucher.EndDate;
         }
 
-        public IActionResult Bill(int id, decimal tipAmount)
+        public IActionResult Bill(decimal tipAmount)
         {
+            int id = int.Parse(_contx.HttpContext.Session.GetString("IdCurrentOrder"));
             RetrieveCartitem(out List<CartItem> lst, out decimal totalbill);
             var bill = _context.FFSOrders.FirstOrDefault(o => o.FFSOrderId == id);
             foreach(var item in lst)
@@ -227,11 +260,22 @@ namespace FastFoodSystem.WebApp.Controllers
             }
             Console.WriteLine(lst.ToJson());
             ViewBag.Bill = bill;
-            ViewBag.TipAmount = tipAmount;
+            ViewBag.IdOrder = bill.FFSOrderId;
 
-            HttpContext.Session.Clear();
-
-            return View(lst);
+            OrderProcessor orderProcessor = new OrderProcessor(id, _context);
+            if(orderProcessor.UpdateStateOrder())
+            {
+                HttpContext.Session.Remove("IdCurrentOrder");
+                foreach(var item in lst)
+                {
+                    RemoveFromCart(item.FFSProductId);
+                }
+                ViewBag.TipAmount = tipAmount;
+                HttpContext.Session.Clear();
+                return View(lst);
+            }
+            TempData["ErrorMessage202"] = "Thanh toán đơn hàng thất bại";
+            return RedirectToAction("Index", "Cart");
         }
 
         public IActionResult ExportToPdf(int id)
