@@ -10,13 +10,13 @@ namespace FastFoodSystem.WebApp.Models.ProxyPattern
         IHttpContextAccessor contextAccessor;
         IService dbHelper;
         UserManager<Staff> UserManager;
-        private string[] roles;
+        private string[] roles = {"Admin1", "Manager1" };
         public Proxy(FastFoodSystemDbContext context, IHttpContextAccessor contextAccessor) 
         {
             this.contextAccessor = contextAccessor;
             UserManager = contextAccessor.HttpContext.RequestServices.GetService<UserManager<Staff>>();
             dbHelper = new DBHelper(context);
-            getRoleUser();
+            //getRoleUser();
         }
         public async void getRoleUser()
         {
