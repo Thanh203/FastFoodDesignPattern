@@ -5,6 +5,7 @@ using FastFoodSystem.WebApp.Models;
 using DinkToPdf.Contracts;
 using DinkToPdf;
 using FastFoodSystem.WebApp.Models.ViewModel;
+
 using FluentAssertions.Common;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,9 +19,9 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<FastFoodSystemDbContext>(x => x.UseSqlServer(builder.Configuration.GetConnectionString("AgentManagerDbContext")));
 builder.Services.AddRazorPages();
 
-builder.Services.AddScoped<IVoucherRepository, FFSVoucherRepository>();
-builder.Services.AddScoped<IProductRepository, ProductRepository>();
-builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<IRepository<FFSVoucher>, VoucherRepository>();
+builder.Services.AddScoped<IRepository<FFSProduct>, ProductRepository>();
+builder.Services.AddScoped<IRepository<FFSProductCategory>, CategoryRepository>();
 
 
 
@@ -40,7 +41,8 @@ builder.Services.AddAuthorization();
 builder.Services.AddIdentity<Staff, IdentityRole>()
                 .AddEntityFrameworkStores<FastFoodSystemDbContext>()
                 .AddDefaultTokenProviders();
-
+builder.Services.AddScoped<DBHelper>();
+builder.Services.AddTransient<ICartItemFactory, CartItemFactory>();
 
 builder.Services.Configure<IdentityOptions>(options => {
     // Thiết lập về Password

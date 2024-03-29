@@ -11,9 +11,9 @@ namespace AgentManager.WebApp.Controllers
     //[Authorize(Roles = "Admin,Manager,Staff")]
     public class CategoriesController : Controller
     {
-        private readonly ICategoryRepository _categoryRepository;
+        private readonly IRepository<FFSProductCategory> _categoryRepository;
 
-        public CategoriesController(ICategoryRepository categoryRepository)
+        public CategoriesController(IRepository<FFSProductCategory> categoryRepository)
         {
             _categoryRepository = categoryRepository;
         }

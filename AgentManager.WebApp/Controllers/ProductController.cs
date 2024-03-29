@@ -12,10 +12,10 @@ namespace FastFoodSystem.WebApp.Controllers
     //[Authorize(Roles = "Admin,Manager,Staff")]
     public class ProductController : Controller
     {
-        private readonly IProductRepository _productRepository;
-        private readonly ICategoryRepository _categoryRepository;
+        private readonly IRepository<FFSProduct> _productRepository;
+        private readonly IRepository<FFSProductCategory> _categoryRepository;
 
-        public ProductController(IProductRepository productRepository, ICategoryRepository categoryRepository)
+        public ProductController(IRepository<FFSProduct> productRepository, IRepository<FFSProductCategory> categoryRepository)
         {
             _productRepository = productRepository;
             _categoryRepository = categoryRepository;

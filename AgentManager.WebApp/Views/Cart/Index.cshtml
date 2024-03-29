@@ -92,6 +92,12 @@
                                 @string.Format("{0:#,##0}", ViewBag.Bill) VND
                             </span>
                         </p>
+                        <p class="mb-0 me-5">
+                            <span class="small text-muted me-2">Tiền tips:</span>
+                            <span class="lead fw-normal">
+                                @ViewBag.TipAmount
+                            </span>
+                        </p>
                         <span class="small text-muted me-2">Số tiền được giảm:</span>
                         <span class="lead fw-normal text-success">
                             - @string.Format("{0:#,##0}", ViewBag.DiscountAmount) VND
@@ -105,9 +111,11 @@
             @if (ViewBag.StateOrder == OrderState.isConfirmed)
             {
                 <div class="d-flex justify-content-end" style="width:100%; margin:20px; text-align:end;">
+                    <a href="@Url.Action("Tips", "Cart", new { bill = ViewBag.Bill }))" class="btn btn-primary btn-lg m-2">Chọn tips</a>
                     <form method="post" asp-controller="Cart" asp-action="Bill">
                         <input type="text" id="promoCodeCheckout" name="promoCode" class="form-control" placeholder="Mã khuyến mãi" value=0>
                         <input type="hidden" name="state" value="@ViewBag.State" />
+                       <input type="hidden" name="tipAmount" value="@ViewBag.TipAmount" />
                         <button type="submit" class="btn btn-primary btn-lg m-2">Thanh toán</button>
                     </form>
                 </div>
@@ -121,7 +129,6 @@
                     </form>
                 </div>
             }
-
         </div>
     </div>
 </section>
